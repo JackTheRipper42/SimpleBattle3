@@ -4,43 +4,55 @@ using UnityEngine;
 
 public struct GridPosition : IEquatable<GridPosition>
 {
-    private readonly int _u;
-    private readonly int _v;
-    public const int Size = 1;
+    private const int Size = 1;
     private const float Sqrt32 = 0.86602540378443864676372317075294f;
 
-    public GridPosition(int u, int v)
+    private GridPosition(int u, int v)
     {
-        _u = u;
-        _v = v;
+        U = u;
+        V = v;
     }
 
-    public GridPosition(Vector3 position)
+    private GridPosition(Vector3 position)
     {
         var yy = 1 / Sqrt32 * position.z / Size + 1;
         var xx = position.x / Size + yy / 2 + 0.5f;
-        _u = Mathf.FloorToInt((Mathf.Floor(xx) + Mathf.Floor(yy)) / 3);
-        _v = Mathf.FloorToInt((xx - yy + _u + 1) / 2);
+        U = Mathf.FloorToInt((Mathf.Floor(xx) + Mathf.Floor(yy)) / 3);
+        V = Mathf.FloorToInt((xx - yy + U + 1) / 2);
     }
 
-    public Vector3 GetPosition()
+    public int U { get; }
+
+    public int V { get; }
+
+    public static GridPosition FromVector3(Vector3 position)
     {
-        var x = Size * _v * 1.5f;
-        var y = Size * (2 * _u - _v) * Sqrt32;
+        return new GridPosition(position);
+    }
+
+    public static Vector3 ToVector3(GridPosition position)
+    {
+        return position.ToVector3();
+    }
+
+    private Vector3 ToVector3()
+    {
+        var x = Size * V * 1.5f;
+        var y = Size * (2 * U - V) * Sqrt32;
         return new Vector3(x, 0, y);
     }
 
-    public GridPosition North => new GridPosition(_u + 1, _v);
+    public GridPosition North => new GridPosition(U + 1, V);
 
-    public GridPosition NorthEast => new GridPosition(_u + 1, _v + 1);
+    public GridPosition NorthEast => new GridPosition(U + 1, V + 1);
 
-    public GridPosition SouthEast => new GridPosition(_u, _v + 1);
+    public GridPosition SouthEast => new GridPosition(U, V + 1);
 
-    public GridPosition South => new GridPosition(_u - 1, _v);
+    public GridPosition South => new GridPosition(U - 1, V);
 
-    public GridPosition SouthWest => new GridPosition(_u - 1, _v - 1);
+    public GridPosition SouthWest => new GridPosition(U - 1, V - 1);
 
-    public GridPosition NorthWest => new GridPosition(_u, _v - 1);
+    public GridPosition NorthWest => new GridPosition(U, V - 1);
 
     public IEnumerable<GridPosition> Neighbors
     {
@@ -57,14 +69,14 @@ public struct GridPosition : IEquatable<GridPosition>
 
     public int Distance(GridPosition other)
     {
-        var diffU = other._u - _u;
-        var diffV = other._v - _v;
+        var diffU = other.U - U;
+        var diffV = other.V - V;
         return Math.Max(Math.Max(Math.Abs(diffU), Math.Abs(diffV)), Math.Abs(diffU - diffV));
     }
 
     public bool Equals(GridPosition other)
     {
-        return _u == other._u && _v == other._v;
+        return U == other.U && V == other.V;
     }
 
     public override bool Equals(object obj)
@@ -80,13 +92,13 @@ public struct GridPosition : IEquatable<GridPosition>
     {
         unchecked
         {
-            return (_u * 397) ^ _v;
+            return (U * 397) ^ V;
         }
     }
 
     public override string ToString()
     {
-        return string.Format("u:{0}, v:{1}", _u, _v);
+        return $"u:{U}, v:{V}";
     }
 
     public static bool operator ==(GridPosition left, GridPosition right)

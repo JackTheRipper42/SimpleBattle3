@@ -13,13 +13,13 @@ public class Node : IEquatable<Node>
 
     public float Gscore { get; set; }
 
-    private static bool Equals(Node a, Node b)
+    private static bool Equals(Node left, Node right)
     {
-        if (ReferenceEquals(a, b))
+        if (ReferenceEquals(left, right))
         {
             return true;
         }
-        return !ReferenceEquals(a, null) && a.Equals(b);
+        return !ReferenceEquals(left, null) && left.Equals(right);
     }
 
     public bool Equals(Node other)

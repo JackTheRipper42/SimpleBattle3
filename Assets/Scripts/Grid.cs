@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -21,8 +20,8 @@ public class Grid : MonoBehaviour
         RaycastHit hit;
         if (Physics.Raycast(ray, out hit, float.MaxValue, GridLayerMask.value))
         {
-            var gridPosition = new GridPosition(hit.point);
-            var newPosition = gridPosition.GetPosition();
+            var gridPosition = GridPosition.FromVector3(hit.point);
+            var newPosition = GridPosition.ToVector3(gridPosition);
             Marker.position = newPosition;
         }
 
@@ -35,7 +34,7 @@ public class Grid : MonoBehaviour
 
         for (var i = 1; i < path.Count; i++)
         {
-            Debug.DrawLine(path[i -1].GetPosition(), path[i].GetPosition(), Color.green);
+            Debug.DrawLine(GridPosition.ToVector3(path[i -1]), GridPosition.ToVector3(path[i]), Color.green);
         }
     }
 

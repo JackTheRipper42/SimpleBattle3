@@ -10,7 +10,7 @@ public class Entity : MonoBehaviour
     {
         Grid = FindObjectOfType<Grid>();
         Grid.Register(this);
-        Position = new GridPosition(transform.position);
-        transform.position = Position.GetPosition();
+        Position = GridPosition.FromVector3(transform.position);
+        transform.position = GridPosition.ToVector3(Position);
     }
 }
