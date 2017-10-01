@@ -35,7 +35,7 @@ public class Grid : MonoBehaviour
 
         for (var i = 1; i < path.Count; i++)
         {
-            Debug.DrawLine(path[i -1].GetPosition(), path[i].GetPosition(), Color.blue);
+            Debug.DrawLine(path[i -1].GetPosition(), path[i].GetPosition(), Color.green);
         }
     }
 

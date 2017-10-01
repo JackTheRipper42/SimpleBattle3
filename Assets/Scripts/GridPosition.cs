@@ -30,35 +30,17 @@ public struct GridPosition : IEquatable<GridPosition>
         return new Vector3(x, 0, y);
     }
 
-    public GridPosition North
-    {
-        get { return new GridPosition(_u + 1, _v); }
-    }
+    public GridPosition North => new GridPosition(_u + 1, _v);
 
-    public GridPosition NorthEast
-    {
-        get { return new GridPosition(_u + 1, _v + 1); }
-    }
+    public GridPosition NorthEast => new GridPosition(_u + 1, _v + 1);
 
-    public GridPosition SouthEast
-    {
-        get { return new GridPosition(_u, _v + 1); }
-    }
+    public GridPosition SouthEast => new GridPosition(_u, _v + 1);
 
-    public GridPosition South
-    {
-        get { return new GridPosition(_u - 1, _v); }
-    }
+    public GridPosition South => new GridPosition(_u - 1, _v);
 
-    public GridPosition SouthWest
-    {
-        get { return new GridPosition(_u - 1, _v - 1); }
-    }
+    public GridPosition SouthWest => new GridPosition(_u - 1, _v - 1);
 
-    public GridPosition NorthWest
-    {
-        get { return new GridPosition(_u, _v - 1); }
-    }
+    public GridPosition NorthWest => new GridPosition(_u, _v - 1);
 
     public IEnumerable<GridPosition> Neighbors
     {

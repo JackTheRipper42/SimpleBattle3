@@ -7,7 +7,7 @@ public class Node : IEquatable<Node>
         Position = position;
     }
 
-    public GridPosition Position { get; private set; }
+    public GridPosition Position { get; }
 
     public float Fscore { get; set; }
 

@@ -168,7 +168,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 4519132968404850, guid: 25c8ba2f81390574882522fa05e48f03, type: 2}
       propertyPath: m_LocalPosition.y
-      value: -2.614244e-18
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4519132968404850, guid: 25c8ba2f81390574882522fa05e48f03, type: 2}
       propertyPath: m_LocalPosition.z
@@ -214,7 +214,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 4519132968404850, guid: 25c8ba2f81390574882522fa05e48f03, type: 2}
       propertyPath: m_LocalPosition.y
-      value: 6.030471e-18
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4519132968404850, guid: 25c8ba2f81390574882522fa05e48f03, type: 2}
       propertyPath: m_LocalPosition.z
@@ -349,7 +349,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 4519132968404850, guid: 25c8ba2f81390574882522fa05e48f03, type: 2}
       propertyPath: m_LocalPosition.y
-      value: -4.961588e-19
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4519132968404850, guid: 25c8ba2f81390574882522fa05e48f03, type: 2}
       propertyPath: m_LocalPosition.z
@@ -391,15 +391,15 @@ Prefab:
     m_Modifications:
     - target: {fileID: 4519132968404850, guid: 25c8ba2f81390574882522fa05e48f03, type: 2}
       propertyPath: m_LocalPosition.x
-      value: -6.821885
+      value: 1.66
       objectReference: {fileID: 0}
     - target: {fileID: 4519132968404850, guid: 25c8ba2f81390574882522fa05e48f03, type: 2}
       propertyPath: m_LocalPosition.y
-      value: -1.34025345e-17
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4519132968404850, guid: 25c8ba2f81390574882522fa05e48f03, type: 2}
       propertyPath: m_LocalPosition.z
-      value: 6.0359645
+      value: -0.38
       objectReference: {fileID: 0}
     - target: {fileID: 4519132968404850, guid: 25c8ba2f81390574882522fa05e48f03, type: 2}
       propertyPath: m_LocalRotation.x
@@ -647,20 +647,6 @@ Light:
   m_Lightmapping: 4
   m_AreaSize: {x: 1, y: 1}
   m_BounceIntensity: 1
-  m_FalloffTable:
-    m_Table[0]: 0
-    m_Table[1]: 0
-    m_Table[2]: 0
-    m_Table[3]: 0
-    m_Table[4]: 0
-    m_Table[5]: 0
-    m_Table[6]: 0
-    m_Table[7]: 0
-    m_Table[8]: 0
-    m_Table[9]: 0
-    m_Table[10]: 0
-    m_Table[11]: 0
-    m_Table[12]: 0
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
   m_ShadowRadius: 0
@@ -691,7 +677,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 4519132968404850, guid: 25c8ba2f81390574882522fa05e48f03, type: 2}
       propertyPath: m_LocalPosition.y
-      value: 0.66
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4519132968404850, guid: 25c8ba2f81390574882522fa05e48f03, type: 2}
       propertyPath: m_LocalPosition.z
@@ -737,7 +723,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 4519132968404850, guid: 25c8ba2f81390574882522fa05e48f03, type: 2}
       propertyPath: m_LocalPosition.y
-      value: 5.410353e-18
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4519132968404850, guid: 25c8ba2f81390574882522fa05e48f03, type: 2}
       propertyPath: m_LocalPosition.z
