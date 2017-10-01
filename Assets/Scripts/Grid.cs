@@ -5,17 +5,20 @@ using UnityEngine;
 public class Grid : MonoBehaviour
 {
     public LayerMask GridLayerMask;
-    public GameObject Marker;
+    public GameObject SelectionMarker;
+    public GameObject DestinationMarkerPrefab;
 
     private Astar _astar;
     private List<Entity> _entities;
     private Ship _selectedShip;
-    
+    private List<GameObject> _destinationMarkers;
+
     protected virtual void Start()
     {
         _astar = new Astar();
         _entities = new List<Entity>();
-        Marker.SetActive(false);
+        _destinationMarkers = new List<GameObject>();
+        SelectionMarker.SetActive(false);
         _selectedShip = null;
     }
 
@@ -34,14 +37,14 @@ public class Grid : MonoBehaviour
 
                 if (clickedEntity == null)
                 {
-                    Marker.SetActive(false);
+                    SelectionMarker.SetActive(false);
                     _selectedShip = null;
                 }
                 else
                 {
-                    Marker.SetActive(true);
+                    SelectionMarker.SetActive(true);
                     var newPosition = GridPosition.ToVector3(gridPosition);
-                    Marker.transform.position = newPosition;
+                    SelectionMarker.transform.position = newPosition;
                     _selectedShip = clickedEntity;
                 }
             }
@@ -68,7 +71,7 @@ public class Grid : MonoBehaviour
                     if (path != null && path.Count <= _selectedShip.MovementRange + 1)
                     {
                         _selectedShip.Move(gridPosition);
-                        Marker.transform.position = GridPosition.ToVector3(gridPosition);
+                        SelectionMarker.transform.position = GridPosition.ToVector3(gridPosition);
                     }
                 }
                 else
@@ -85,6 +88,59 @@ public class Grid : MonoBehaviour
                 }
             }
         }
+
+        foreach (var ship in _entities.OfType<Ship>())
+        {
+            if (ship == _selectedShip || _selectedShip == null)
+            {
+                ship.DisableTargetMarker();
+            }
+            else
+            {
+                var range = _selectedShip.Position.Distance(ship.Position);
+                if (range <= _selectedShip.FireRange)
+                {
+                    ship.EnableTargetMarker();
+                }
+                else
+                {
+                    ship.DisableTargetMarker();
+                }
+            }
+        }
+
+        if (_selectedShip != null)
+        {
+            var obstacles = _entities.Select(entity => entity.Position).ToList();
+            var destinations = GetDestinations(_selectedShip.Position, obstacles, _selectedShip.MovementRange);
+
+            var markers = new Queue<GameObject>(_destinationMarkers);
+            _destinationMarkers.Clear();
+
+            foreach (var destination in destinations)
+            {
+                if (destination == _selectedShip.Position)
+                {
+                    continue;
+                }
+
+                var marker = markers.Any() ? markers.Dequeue() : Instantiate(DestinationMarkerPrefab);
+                marker.transform.position = GridPosition.ToVector3(destination);
+                marker.transform.SetParent(transform);
+                _destinationMarkers.Add(marker);
+            }
+            while (markers.Any())
+            {
+                Destroy(markers.Dequeue());
+            }
+        }
+        else
+        {
+            foreach (var destinationMarker in _destinationMarkers)
+            {
+                Destroy(destinationMarker);
+            }
+        }
     }
 
     public void Register(Entity entity)
@@ -95,5 +151,30 @@ public class Grid : MonoBehaviour
     public void Remove(Entity entity)
     {
         _entities.Remove(entity);
+    }
+
+    private static ICollection<GridPosition> GetDestinations(
+        GridPosition position, 
+        ICollection<GridPosition> obstacles,
+        int range)
+    {
+        var destinations = new List<GridPosition>();
+
+        if (range < 0)
+        {
+            return destinations;
+        }
+
+        destinations.Add(position);
+
+        foreach (var neighbor in position.Neighbors)
+        {
+            if (!obstacles.Contains(neighbor))
+            {
+                destinations.AddRange(GetDestinations(neighbor, obstacles, range - 1));
+            }
+        }
+
+        return destinations.Distinct().ToList();
     }
 }
