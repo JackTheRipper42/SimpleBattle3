@@ -147,6 +147,16 @@ Prefab:
       propertyPath: m_RootOrder
       value: 6
       objectReference: {fileID: 0}
+    - target: {fileID: 114490264294291944, guid: c13b47a326ac84345b09c2e74cd7e18f,
+        type: 2}
+      propertyPath: MovementRange
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114490264294291944, guid: c13b47a326ac84345b09c2e74cd7e18f,
+        type: 2}
+      propertyPath: FireRange
+      value: 2
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: c13b47a326ac84345b09c2e74cd7e18f, type: 2}
   m_IsPrefabParent: 0
@@ -221,9 +231,9 @@ Prefab:
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 67cbcd235b2a10e4f9cac21cdab77be1, type: 2}
   m_IsPrefabParent: 0
---- !u!4 &293981805 stripped
-Transform:
-  m_PrefabParentObject: {fileID: 4280523747825680, guid: 67cbcd235b2a10e4f9cac21cdab77be1,
+--- !u!1 &333647145 stripped
+GameObject:
+  m_PrefabParentObject: {fileID: 1546168589900356, guid: 67cbcd235b2a10e4f9cac21cdab77be1,
     type: 2}
   m_PrefabInternal: {fileID: 293981804}
 --- !u!1001 &575936768
@@ -653,7 +663,7 @@ MonoBehaviour:
   GridLayerMask:
     serializedVersion: 2
     m_Bits: 256
-  Marker: {fileID: 293981805}
+  Marker: {fileID: 333647145}
 --- !u!1 &1596345196
 GameObject:
   m_ObjectHideFlags: 0

@@ -5,36 +5,85 @@ using UnityEngine;
 public class Grid : MonoBehaviour
 {
     public LayerMask GridLayerMask;
-    public Transform Marker;
+    public GameObject Marker;
 
+    private Astar _astar;
     private List<Entity> _entities;
-
+    private Ship _selectedShip;
+    
     protected virtual void Start()
     {
+        _astar = new Astar();
         _entities = new List<Entity>();
+        Marker.SetActive(false);
+        _selectedShip = null;
     }
 
     protected virtual void Update()
     {
-        var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        RaycastHit hit;
-        if (Physics.Raycast(ray, out hit, float.MaxValue, GridLayerMask.value))
+        if (Input.mousePresent && Input.GetMouseButtonUp(0))
         {
-            var gridPosition = GridPosition.FromVector3(hit.point);
-            var newPosition = GridPosition.ToVector3(gridPosition);
-            Marker.position = newPosition;
+            var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+            if (Physics.Raycast(ray, out hit, float.MaxValue, GridLayerMask.value))
+            {
+                var gridPosition = GridPosition.FromVector3(hit.point);
+
+                var clickedEntity =
+                    _entities.OfType<Ship>().FirstOrDefault(entity => entity.Position == gridPosition);
+
+                if (clickedEntity == null)
+                {
+                    Marker.SetActive(false);
+                    _selectedShip = null;
+                }
+                else
+                {
+                    Marker.SetActive(true);
+                    var newPosition = GridPosition.ToVector3(gridPosition);
+                    Marker.transform.position = newPosition;
+                    _selectedShip = clickedEntity;
+                }
+            }
         }
-
-        var astar = new Astar();
-        var start = _entities.First();
-        var end = _entities.Last();
-        var obstacles = _entities.Except(new[] {start, end}).Select(entity => entity.Position).ToList();
-
-        var path = astar.Calculate(start.Position, end.Position, obstacles);
-
-        for (var i = 1; i < path.Count; i++)
+        if (Input.mousePresent && Input.GetMouseButtonUp(1) && _selectedShip != null)
         {
-            Debug.DrawLine(GridPosition.ToVector3(path[i -1]), GridPosition.ToVector3(path[i]), Color.green);
+            var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+            if (Physics.Raycast(ray, out hit, float.MaxValue, GridLayerMask.value))
+            {
+                var gridPosition = GridPosition.FromVector3(hit.point);
+
+                var clickedEntity =
+                    _entities.FirstOrDefault(entity => entity.Position == gridPosition);
+
+                if (clickedEntity == null)
+                {
+                    var obstacles = _entities
+                        .Where(entity => entity != _selectedShip)
+                        .Select(entity => entity.Position)
+                        .ToList();
+                    var path = _astar.Calculate(_selectedShip.Position, gridPosition, obstacles);
+
+                    if (path != null && path.Count <= _selectedShip.MovementRange + 1)
+                    {
+                        _selectedShip.Move(gridPosition);
+                        Marker.transform.position = GridPosition.ToVector3(gridPosition);
+                    }
+                }
+                else
+                {
+                    var target = clickedEntity as Ship;
+                    if (target != null && target != _selectedShip)
+                    {
+                        var range = _selectedShip.Position.Distance(target.Position);
+                        if (range <= _selectedShip.FireRange)
+                        {
+                            target.Kill();
+                        }
+                    }
+                }
+            }
         }
     }
 
