@@ -2,15 +2,15 @@
 
 public abstract class Entity : MonoBehaviour
 {
-    protected Grid Grid { get; private set; }
+    protected GameManager GameManager { get; private set; }
 
     public GridPosition Position { get; private set; }
 
     protected virtual void Start()
     {
         Move(GridPosition.FromVector3(transform.position));
-        Grid = FindObjectOfType<Grid>();
-        Grid.Register(this);
+        GameManager = FindObjectOfType<GameManager>();
+        GameManager.Register(this);
     }
 
     protected void Move(GridPosition position)
@@ -21,7 +21,7 @@ public abstract class Entity : MonoBehaviour
 
     protected void Kill()
     {
-        Grid.Remove(this);
+        GameManager.Remove(this);
         Destroy(gameObject);
     }
 }

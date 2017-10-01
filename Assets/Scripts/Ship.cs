@@ -6,20 +6,28 @@ public class Ship : Entity
     public int FireRange = 1;
     public GameObject TargetMarker;
 
+    public bool CanMove { get; private set; }
+
+    public bool CanFire { get; private set; }
+
     protected override void Start()
     {
         base.Start();
         DisableTargetMarker();
+        CanMove = true;
+        CanFire = true;
     }
 
     public new void Move(GridPosition position)
     {
         base.Move(position);
+        CanMove = false;
     }
 
-    public new void Kill()
+    public void Attack(Ship target)
     {
-        base.Kill();
+        target.Kill();
+        CanFire = false;
     }
 
     public void EnableTargetMarker()
@@ -30,5 +38,11 @@ public class Ship : Entity
     public void DisableTargetMarker()
     {
         TargetMarker.SetActive(false);
+    }
+
+    public void StartTurn()
+    {
+        CanFire = true;
+        CanMove = true;
     }
 }

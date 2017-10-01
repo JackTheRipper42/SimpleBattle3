@@ -2,7 +2,7 @@
 using System.Linq;
 using UnityEngine;
 
-public class Grid : MonoBehaviour
+public class GameManager : MonoBehaviour
 {
     public LayerMask GridLayerMask;
     public GameObject SelectionMarker;
@@ -62,27 +62,33 @@ public class Grid : MonoBehaviour
 
                 if (clickedEntity == null)
                 {
-                    var obstacles = _entities
-                        .Where(entity => entity != _selectedShip)
-                        .Select(entity => entity.Position)
-                        .ToList();
-                    var path = _astar.Calculate(_selectedShip.Position, gridPosition, obstacles);
-
-                    if (path != null && path.Count <= _selectedShip.MovementRange + 1)
+                    if (_selectedShip.CanMove)
                     {
-                        _selectedShip.Move(gridPosition);
-                        SelectionMarker.transform.position = GridPosition.ToVector3(gridPosition);
+                        var obstacles = _entities
+                            .Where(entity => entity != _selectedShip)
+                            .Select(entity => entity.Position)
+                            .ToList();
+                        var path = _astar.Calculate(_selectedShip.Position, gridPosition, obstacles);
+
+                        if (path != null && path.Count <= _selectedShip.MovementRange + 1)
+                        {
+                            _selectedShip.Move(gridPosition);
+                            SelectionMarker.transform.position = GridPosition.ToVector3(gridPosition);
+                        }
                     }
                 }
                 else
                 {
-                    var target = clickedEntity as Ship;
-                    if (target != null && target != _selectedShip)
+                    if (_selectedShip.CanFire)
                     {
-                        var range = _selectedShip.Position.Distance(target.Position);
-                        if (range <= _selectedShip.FireRange)
+                        var target = clickedEntity as Ship;
+                        if (target != null && target != _selectedShip)
                         {
-                            target.Kill();
+                            var range = _selectedShip.Position.Distance(target.Position);
+                            if (range <= _selectedShip.FireRange)
+                            {
+                                _selectedShip.Attack(target);
+                            }
                         }
                     }
                 }
@@ -91,7 +97,7 @@ public class Grid : MonoBehaviour
 
         foreach (var ship in _entities.OfType<Ship>())
         {
-            if (ship == _selectedShip || _selectedShip == null)
+            if (ship == _selectedShip || _selectedShip == null || !_selectedShip.CanFire)
             {
                 ship.DisableTargetMarker();
             }
@@ -109,7 +115,7 @@ public class Grid : MonoBehaviour
             }
         }
 
-        if (_selectedShip != null)
+        if (_selectedShip != null && _selectedShip.CanMove)
         {
             var obstacles = _entities.Select(entity => entity.Position).ToList();
             var destinations = GetDestinations(_selectedShip.Position, obstacles, _selectedShip.MovementRange);
@@ -125,9 +131,12 @@ public class Grid : MonoBehaviour
                 }
 
                 var marker = markers.Any() ? markers.Dequeue() : Instantiate(DestinationMarkerPrefab);
-                marker.transform.position = GridPosition.ToVector3(destination);
-                marker.transform.SetParent(transform);
-                _destinationMarkers.Add(marker);
+                if (marker != null)
+                {
+                    marker.transform.position = GridPosition.ToVector3(destination);
+                    marker.transform.SetParent(transform);
+                    _destinationMarkers.Add(marker);
+                }
             }
             while (markers.Any())
             {
@@ -151,6 +160,14 @@ public class Grid : MonoBehaviour
     public void Remove(Entity entity)
     {
         _entities.Remove(entity);
+    }
+
+    public void EndTurn()
+    {
+        foreach (var ship in _entities.OfType<Ship>())
+        {
+            ship.StartTurn();
+        }
     }
 
     private static ICollection<GridPosition> GetDestinations(
