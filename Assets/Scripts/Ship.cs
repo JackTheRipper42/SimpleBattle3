@@ -5,6 +5,9 @@ public class Ship : Entity
     public int MovementRange = 4;
     public int FireRange = 1;
     public Side Side;
+    public float MaxHealth = 100f;
+    public float WeaponDamage = 10f;
+    public float Health;
     public AudioSource FireAudio;
     public AudioSource ThrusterAudio;
     public GameObject UIPrefab;
@@ -15,6 +18,7 @@ public class Ship : Entity
 
     public bool CanFire { get; private set; }
 
+
     protected virtual void Awake()
     {
         var uiObject = Instantiate(UIPrefab, transform);
@@ -24,6 +28,7 @@ public class Ship : Entity
     protected override void Start()
     {
         base.Start();
+        Health = MaxHealth;
         StartTurn();
     }
 
@@ -36,9 +41,41 @@ public class Ship : Entity
 
     public void Attack(Ship target)
     {
-        target.Kill();
         CanFire = false;
         _shipUI.DisableCanFireMarker();
+
+        if (Random.Range(0, 10) < 7)
+        {
+            target.Health -= WeaponDamage;
+            if (target.Health < 0)
+            {
+                target.Kill();
+            }
+            else
+            {
+                Health -= target.WeaponDamage;
+                if (Health < 0)
+                {
+                    Kill();
+                }
+            }
+        }
+        else
+        {
+            Health -= target.WeaponDamage;
+            if (Health < 0)
+            {
+                Kill();
+            }
+            else
+            {
+                target.Health -= WeaponDamage;
+                if (target.Health < 0)
+                {
+                    target.Kill();
+                }
+            }
+        }
     }
 
     public void EnableTargetMarker()
