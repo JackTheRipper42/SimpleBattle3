@@ -35,6 +35,13 @@ public struct GridPosition : IEquatable<GridPosition>
         return position.ToVector3();
     }
 
+    public static int Distance(GridPosition left, GridPosition right)
+    {
+        var diffU = left.U - right.U;
+        var diffV = left.V - right.V;
+        return Math.Max(Math.Max(Math.Abs(diffU), Math.Abs(diffV)), Math.Abs(diffU - diffV));
+    }
+
     private Vector3 ToVector3()
     {
         var x = Size * V * 1.5f;
@@ -65,13 +72,6 @@ public struct GridPosition : IEquatable<GridPosition>
             yield return SouthWest;
             yield return NorthWest;
         }
-    }
-
-    public int Distance(GridPosition other)
-    {
-        var diffU = other.U - U;
-        var diffV = other.V - V;
-        return Math.Max(Math.Max(Math.Abs(diffU), Math.Abs(diffV)), Math.Abs(diffU - diffV));
     }
 
     public bool Equals(GridPosition other)

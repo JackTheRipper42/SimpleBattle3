@@ -222,6 +222,7 @@ MonoBehaviour:
     type: 2}
   Speed: 30
   PlayerSide: 0
+  Test: 42
 --- !u!4 &378978463
 Transform:
   m_ObjectHideFlags: 0
@@ -361,6 +362,11 @@ Prefab:
     - target: {fileID: 4215284849596468, guid: c13b47a326ac84345b09c2e74cd7e18f, type: 2}
       propertyPath: m_RootOrder
       value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 114490264294291944, guid: c13b47a326ac84345b09c2e74cd7e18f,
+        type: 2}
+      propertyPath: _side
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: c13b47a326ac84345b09c2e74cd7e18f, type: 2}
@@ -1089,6 +1095,7 @@ MonoBehaviour:
     type: 2}
   Speed: 1
   PlayerSide: 0
+  Test: 42
 --- !u!1 &1596345196
 GameObject:
   m_ObjectHideFlags: 0
@@ -1266,6 +1273,11 @@ Prefab:
     - target: {fileID: 4987479865169794, guid: 02b3f506a81eb6b42b9ebe29cf9cf87f, type: 2}
       propertyPath: m_RootOrder
       value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 114947024107108788, guid: 02b3f506a81eb6b42b9ebe29cf9cf87f,
+        type: 2}
+      propertyPath: _side
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 02b3f506a81eb6b42b9ebe29cf9cf87f, type: 2}

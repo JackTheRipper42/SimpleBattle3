@@ -88,7 +88,7 @@ public class GameManager : MonoBehaviour
                         var target = clickedEntity as Ship;
                         if (target != null && target.Side != PlayerSide)
                         {
-                            var range = _selectedShip.Position.Distance(target.Position);
+                            var range = GridPosition.Distance(_selectedShip.Position, target.Position);
                             if (range <= _selectedShip.FireRange)
                             {
                                 _animationRunning = true;
@@ -111,7 +111,7 @@ public class GameManager : MonoBehaviour
             }
             else
             {
-                var range = _selectedShip.Position.Distance(ship.Position);
+                var range = GridPosition.Distance(_selectedShip.Position, ship.Position);
                 if (range <= _selectedShip.FireRange)
                 {
                     ship.EnableTargetMarker();

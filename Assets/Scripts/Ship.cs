@@ -111,19 +111,25 @@ public class Ship : Entity
     private static IEnumerator Attack(Ship first, Ship second)
     {
         const float flightTime = 0.35f;
+        var range = GridPosition.Distance(first.Position, second.Position);
 
-        yield return first.PlayFireAnimation();
-        yield return new WaitForSeconds(flightTime);
-        second._health -= first._weaponDamage;
-        if (second._health < 0)
+        if (range <= first.FireRange)
         {
-            yield return second.PlayShipExplosion();
-            second.Kill();
+            yield return first.PlayFireAnimation();
+            yield return new WaitForSeconds(flightTime);
+            second._health -= first._weaponDamage;
+            if (second._health <= 0)
+            {
+                yield return second.PlayShipExplosion();
+                second.Kill();
+            }
+            else
+            {
+                yield return second.PlayHit();
+            }
         }
-        else
+        if (second._health > 0 && range <= second.FireRange)
         {
-            yield return second.PlayHit();
-
             yield return new WaitForSeconds(0.15f);
             yield return second.PlayFireAnimation();
             yield return new WaitForSeconds(flightTime);

@@ -71,12 +71,12 @@ public class Astar
 
     private static float HeuristicCostEstimate([NotNull] Node start, [NotNull] Node goal)
     {
-        return start.Position.Distance(goal.Position);
+        return GridPosition.Distance(start.Position, goal.Position);
     }
 
     private static float GetCost(GridPosition start, GridPosition goal)
     {
-        return start.Distance(goal);
+        return GridPosition.Distance(start, goal);
     }
 
     private static IList<GridPosition> ReconstuctPath([NotNull] IDictionary<Node, Node> cameFrom, [NotNull] Node current)
