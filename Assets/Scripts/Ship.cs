@@ -4,17 +4,23 @@ using UnityEngine;
 
 public class Ship : Entity
 {
-    public int MovementRange = 4;
-    public int FireRange = 1;
-    public Side Side;
-    public float MaxHealth = 100f;
-    public float WeaponDamage = 10f;
-    public float Health;
-    public AudioSource FireAudio;
-    public AudioSource ThrusterAudio;
-    public GameObject UIPrefab;
-    public GameObject[] ExplosionPrefabs;
-    public GameObject[] HitPrefabs;
+#pragma warning disable 649
+    // ReSharper disable ConvertToConstant.Local
+    // ReSharper disable FieldCanBeMadeReadOnly.Local
+    [SerializeField] private int _movementRange = 4;
+    [SerializeField] private int _fireRange = 1;
+    [SerializeField] private Side _side;
+    [SerializeField] private float _maxHealth = 100f;
+    [SerializeField] private float _weaponDamage = 10f;
+    [SerializeField] private float _health;
+    [SerializeField] private AudioSource _fireAudio;
+    [SerializeField] private AudioSource _thrusterAudio ;
+    [SerializeField] private GameObject _uiPrefab;
+    [SerializeField] private GameObject[] _explosionPrefabs;
+    [SerializeField] private GameObject[] _hitPrefabs;
+    // ReSharper restore FieldCanBeMadeReadOnly.Local
+    // ReSharper restore ConvertToConstant.Local
+#pragma warning restore 649
 
     private ShipUI _shipUI;
 
@@ -22,17 +28,22 @@ public class Ship : Entity
 
     public bool CanFire { get; private set; }
 
+    public int MovementRange => _movementRange;
+
+    public int FireRange => _fireRange;
+
+    public Side Side => _side;
 
     protected virtual void Awake()
     {
-        var uiObject = Instantiate(UIPrefab, transform);
+        var uiObject = Instantiate(_uiPrefab, transform);
         _shipUI = uiObject.GetComponent<ShipUI>();
     }
 
     protected override void Start()
     {
         base.Start();
-        Health = MaxHealth;
+        _health = _maxHealth;
         StartTurn();
     }
 
@@ -55,7 +66,7 @@ public class Ship : Entity
     {
         CanMove = false;
         _shipUI.DisableCanMoveMarker();
-        ThrusterAudio.Play();
+        _thrusterAudio.Play();
         for (var index = 1; index < path.Count; index++)
         {
             var end = GridPosition.ToVector3(path[index]);
@@ -68,7 +79,7 @@ public class Ship : Entity
             }
             Move(path[index]);
         }
-        ThrusterAudio.Stop();
+        _thrusterAudio.Stop();
     }
 
     public void EnableTargetMarker()
@@ -85,7 +96,7 @@ public class Ship : Entity
     {
         CanFire = true;
         CanMove = true;
-        if (GameManager.PlayerSide == Side)
+        if (GameManager.PlayerSide == _side)
         {
             _shipUI.EnableCanFireMarker();
             _shipUI.EnableCanMoveMarker();
@@ -94,7 +105,7 @@ public class Ship : Entity
 
     public override bool IsObstacle(Side side)
     {
-        return side != Side;
+        return side != _side;
     }
 
     private static IEnumerator Attack(Ship first, Ship second)
@@ -103,8 +114,8 @@ public class Ship : Entity
 
         yield return first.PlayFireAnimation();
         yield return new WaitForSeconds(flightTime);
-        second.Health -= first.WeaponDamage;
-        if (second.Health < 0)
+        second._health -= first._weaponDamage;
+        if (second._health < 0)
         {
             yield return second.PlayShipExplosion();
             second.Kill();
@@ -116,8 +127,8 @@ public class Ship : Entity
             yield return new WaitForSeconds(0.15f);
             yield return second.PlayFireAnimation();
             yield return new WaitForSeconds(flightTime);
-            first.Health -= second.WeaponDamage;
-            if (first.Health < 0)
+            first._health -= second._weaponDamage;
+            if (first._health < 0)
             {
                 yield return first.PlayShipExplosion();
                 first.Kill();
@@ -131,8 +142,8 @@ public class Ship : Entity
 
     private IEnumerator PlayFireAnimation()
     {
-        FireAudio.Play();
-        while (FireAudio.isPlaying)
+        _fireAudio.Play();
+        while (_fireAudio.isPlaying)
         {
             yield return new WaitForEndOfFrame();
         }
@@ -140,13 +151,13 @@ public class Ship : Entity
 
     private IEnumerator PlayShipExplosion()
     {
-        var prefab = ExplosionPrefabs[Random.Range(0, ExplosionPrefabs.Length)];
+        var prefab = _explosionPrefabs[Random.Range(0, _explosionPrefabs.Length)];
         return PlayExplosionAnimation(prefab);
     }
 
     private IEnumerator PlayHit()
     {
-        var prefab = HitPrefabs[Random.Range(0, HitPrefabs.Length)];
+        var prefab = _hitPrefabs[Random.Range(0, _hitPrefabs.Length)];
         return PlayExplosionAnimation(prefab);
     }
 
@@ -191,6 +202,5 @@ public class Ship : Entity
         }
 
         Destroy(explosion);
-        //waitForCompletion.Set();
     }
 }
