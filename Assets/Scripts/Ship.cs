@@ -5,6 +5,8 @@ public class Ship : Entity
     public int MovementRange = 4;
     public int FireRange = 1;
     public GameObject TargetMarker;
+    public AudioSource FireAudio;
+    public AudioSource ThrusterAudio;
 
     public bool CanMove { get; private set; }
 

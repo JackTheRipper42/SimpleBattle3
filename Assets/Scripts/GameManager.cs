@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -7,11 +8,13 @@ public class GameManager : MonoBehaviour
     public LayerMask GridLayerMask;
     public GameObject SelectionMarker;
     public GameObject DestinationMarkerPrefab;
+    public float Speed = 30;
 
     private Astar _astar;
     private List<Entity> _entities;
     private Ship _selectedShip;
     private List<GameObject> _destinationMarkers;
+    private bool _animationRunning;
 
     protected virtual void Start()
     {
@@ -24,7 +27,7 @@ public class GameManager : MonoBehaviour
 
     protected virtual void Update()
     {
-        if (Input.mousePresent && Input.GetMouseButtonUp(0))
+        if (Input.mousePresent && Input.GetMouseButtonUp(0) && !_animationRunning)
         {
             var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
@@ -49,7 +52,7 @@ public class GameManager : MonoBehaviour
                 }
             }
         }
-        if (Input.mousePresent && Input.GetMouseButtonUp(1) && _selectedShip != null)
+        if (Input.mousePresent && Input.GetMouseButtonUp(1) && _selectedShip != null && !_animationRunning)
         {
             var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
@@ -72,8 +75,8 @@ public class GameManager : MonoBehaviour
 
                         if (path != null && path.Count <= _selectedShip.MovementRange + 1)
                         {
-                            _selectedShip.Move(gridPosition);
-                            SelectionMarker.transform.position = GridPosition.ToVector3(gridPosition);
+                            _animationRunning = true;
+                            StartCoroutine(Move(_selectedShip, path));
                         }
                     }
                 }
@@ -87,7 +90,9 @@ public class GameManager : MonoBehaviour
                             var range = _selectedShip.Position.Distance(target.Position);
                             if (range <= _selectedShip.FireRange)
                             {
-                                _selectedShip.Attack(target);
+                                _animationRunning = true;
+                                StartCoroutine(Attack(_selectedShip, target));
+                                //_selectedShip.Attack(target);
                             }
                         }
                     }
@@ -97,7 +102,7 @@ public class GameManager : MonoBehaviour
 
         foreach (var ship in _entities.OfType<Ship>())
         {
-            if (ship == _selectedShip || _selectedShip == null || !_selectedShip.CanFire)
+            if (ship == _selectedShip || _selectedShip == null || !_selectedShip.CanFire || _animationRunning)
             {
                 ship.DisableTargetMarker();
             }
@@ -115,7 +120,7 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        if (_selectedShip != null && _selectedShip.CanMove)
+        if (_selectedShip != null && _selectedShip.CanMove && !_animationRunning)
         {
             var obstacles = _entities.Select(entity => entity.Position).ToList();
             var destinations = GetDestinations(_selectedShip.Position, obstacles, _selectedShip.MovementRange);
@@ -170,7 +175,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private static ICollection<GridPosition> GetDestinations(
+    private static IEnumerable<GridPosition> GetDestinations(
         GridPosition position, 
         ICollection<GridPosition> obstacles,
         int range)
@@ -193,5 +198,38 @@ public class GameManager : MonoBehaviour
         }
 
         return destinations.Distinct().ToList();
+    }
+
+    private IEnumerator Move(Ship ship, IList<GridPosition> path)
+    {
+        SelectionMarker.SetActive(false);
+        ship.ThrusterAudio.Play();
+        for (var index = 1; index < path.Count; index++)
+        {
+            var end = GridPosition.ToVector3(path[index]);
+
+            while ((ship.transform.position - end).sqrMagnitude > 0.01)
+            {
+                var step = Speed * Time.deltaTime;
+                ship.transform.position = Vector3.MoveTowards(ship.transform.position, end, step);
+                yield return new WaitForEndOfFrame();
+            }
+            ship.Move(path[index]);
+        }
+        ship.ThrusterAudio.Stop();
+        SelectionMarker.SetActive(true);
+        SelectionMarker.transform.position = GridPosition.ToVector3(ship.Position);
+        _animationRunning = false;
+    }
+
+    private IEnumerator Attack(Ship ship, Ship target)
+    {
+        ship.FireAudio.Play();
+        while (ship.FireAudio.isPlaying)
+        {
+            yield return new WaitForEndOfFrame();
+        }
+        ship.Attack(target);
+        _animationRunning = false;
     }
 }

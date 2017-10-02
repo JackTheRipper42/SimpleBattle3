@@ -147,6 +147,11 @@ Prefab:
       propertyPath: m_RootOrder
       value: 4
       objectReference: {fileID: 0}
+    - target: {fileID: 82686158074760600, guid: c13b47a326ac84345b09c2e74cd7e18f,
+        type: 2}
+      propertyPath: m_Pitch
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: c13b47a326ac84345b09c2e74cd7e18f, type: 2}
   m_IsPrefabParent: 0
@@ -232,7 +237,7 @@ GameObject:
   m_PrefabInternal: {fileID: 0}
   serializedVersion: 5
   m_Component:
-  - component: {fileID: 378978467}
+  - component: {fileID: 378978463}
   - component: {fileID: 378978462}
   m_Layer: 8
   m_Name: GameManager
@@ -258,8 +263,9 @@ MonoBehaviour:
   SelectionMarker: {fileID: 1197174103}
   DestinationMarkerPrefab: {fileID: 1011887577362472, guid: b4a5d1fbaf4f7fe49a15c64c4648705b,
     type: 2}
---- !u!224 &378978467
-RectTransform:
+  Speed: 30
+--- !u!4 &378978463
+Transform:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
@@ -275,11 +281,6 @@ RectTransform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
-  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1001 &575936768
 Prefab:
   m_ObjectHideFlags: 0
@@ -481,7 +482,7 @@ Transform:
   m_LocalScale: {x: 0.1, y: 1, z: 0.1}
   m_Children:
   - {fileID: 1484220484}
-  m_Father: {fileID: 378978467}
+  m_Father: {fileID: 378978463}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &866408227
@@ -643,7 +644,7 @@ Prefab:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
-    m_TransformParent: {fileID: 378978467}
+    m_TransformParent: {fileID: 378978463}
     m_Modifications:
     - target: {fileID: 4850592318693822, guid: 7e214ee74ac325549972ab55b08e6c50, type: 2}
       propertyPath: m_LocalPosition.x
@@ -737,6 +738,11 @@ Prefab:
       propertyPath: m_RootOrder
       value: 3
       objectReference: {fileID: 0}
+    - target: {fileID: 82155797117476886, guid: 02b3f506a81eb6b42b9ebe29cf9cf87f,
+        type: 2}
+      propertyPath: m_Pitch
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 02b3f506a81eb6b42b9ebe29cf9cf87f, type: 2}
   m_IsPrefabParent: 0
@@ -808,7 +814,7 @@ Transform:
   m_LocalPosition: {x: 0, y: -1, z: 0}
   m_LocalScale: {x: 0.1, y: 0.10000005, z: 1}
   m_Children: []
-  m_Father: {fileID: 378978467}
+  m_Father: {fileID: 378978463}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
 --- !u!1 &1484220483
@@ -1029,7 +1035,7 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 378978467}
+  m_Father: {fileID: 378978463}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1558533775
@@ -1049,6 +1055,7 @@ MonoBehaviour:
   SelectionMarker: {fileID: 1197174103}
   DestinationMarkerPrefab: {fileID: 1011887577362472, guid: b4a5d1fbaf4f7fe49a15c64c4648705b,
     type: 2}
+  Speed: 1
 --- !u!1 &1596345196
 GameObject:
   m_ObjectHideFlags: 0
