@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Ship : Entity
@@ -35,13 +36,6 @@ public class Ship : Entity
         StartTurn();
     }
 
-    public new void Move(GridPosition position)
-    {
-        base.Move(position);
-        CanMove = false;
-        _shipUI.DisableCanMoveMarker();
-    }
-
     public IEnumerator Attack(Ship target)
     {
         CanFire = false;
@@ -55,6 +49,26 @@ public class Ship : Entity
         {
             yield return Attack(target, this);
         }
+    }
+
+    public IEnumerator Move(IList<GridPosition> path, float speed)
+    {
+        CanMove = false;
+        _shipUI.DisableCanMoveMarker();
+        ThrusterAudio.Play();
+        for (var index = 1; index < path.Count; index++)
+        {
+            var end = GridPosition.ToVector3(path[index]);
+
+            while ((transform.position - end).sqrMagnitude > 0.01)
+            {
+                var step = speed * Time.deltaTime;
+                transform.position = Vector3.MoveTowards(transform.position, end, step);
+                yield return new WaitForEndOfFrame();
+            }
+            Move(path[index]);
+        }
+        ThrusterAudio.Stop();
     }
 
     public void EnableTargetMarker()

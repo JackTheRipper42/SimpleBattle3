@@ -208,20 +208,7 @@ public class GameManager : MonoBehaviour
     private IEnumerator Move(Ship ship, IList<GridPosition> path)
     {
         SelectionMarker.SetActive(false);
-        ship.ThrusterAudio.Play();
-        for (var index = 1; index < path.Count; index++)
-        {
-            var end = GridPosition.ToVector3(path[index]);
-
-            while ((ship.transform.position - end).sqrMagnitude > 0.01)
-            {
-                var step = Speed * Time.deltaTime;
-                ship.transform.position = Vector3.MoveTowards(ship.transform.position, end, step);
-                yield return new WaitForEndOfFrame();
-            }
-            ship.Move(path[index]);
-        }
-        ship.ThrusterAudio.Stop();
+        yield return ship.Move(path, Speed);
         SelectionMarker.SetActive(true);
         SelectionMarker.transform.position = GridPosition.ToVector3(ship.Position);
         _animationRunning = false;
