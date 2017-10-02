@@ -229,12 +229,7 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator Attack(Ship ship, Ship target)
     {
-        ship.FireAudio.Play();
-        while (ship.FireAudio.isPlaying)
-        {
-            yield return new WaitForEndOfFrame();
-        }
-        ship.Attack(target);
+        yield return ship.Attack(target);
         _animationRunning = false;
     }
 }
