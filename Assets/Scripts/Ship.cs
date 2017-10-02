@@ -4,6 +4,7 @@ public class Ship : Entity
 {
     public int MovementRange = 4;
     public int FireRange = 1;
+    public Side Side;
     public GameObject TargetMarker;
     public AudioSource FireAudio;
     public AudioSource ThrusterAudio;
@@ -46,5 +47,10 @@ public class Ship : Entity
     {
         CanFire = true;
         CanMove = true;
+    }
+
+    public override bool IsObstacle(Side side)
+    {
+        return side != Side;
     }
 }

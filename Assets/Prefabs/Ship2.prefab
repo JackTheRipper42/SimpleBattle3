@@ -316,6 +316,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MovementRange: 2
   FireRange: 2
+  Side: 1
   TargetMarker: {fileID: 1781601132421350}
   FireAudio: {fileID: 82672467875697770}
   ThrusterAudio: {fileID: 82686158074760600}

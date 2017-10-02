@@ -9,6 +9,7 @@ public class GameManager : MonoBehaviour
     public GameObject SelectionMarker;
     public GameObject DestinationMarkerPrefab;
     public float Speed = 30;
+    public Side PlayerSide;
 
     private Astar _astar;
     private List<Entity> _entities;
@@ -35,8 +36,9 @@ public class GameManager : MonoBehaviour
             {
                 var gridPosition = GridPosition.FromVector3(hit.point);
 
-                var clickedEntity =
-                    _entities.OfType<Ship>().FirstOrDefault(entity => entity.Position == gridPosition);
+                var clickedEntity = _entities
+                    .OfType<Ship>()
+                    .FirstOrDefault(entity => entity.Position == gridPosition && entity.Side == PlayerSide);
 
                 if (clickedEntity == null)
                 {
@@ -60,15 +62,14 @@ public class GameManager : MonoBehaviour
             {
                 var gridPosition = GridPosition.FromVector3(hit.point);
 
-                var clickedEntity =
-                    _entities.FirstOrDefault(entity => entity.Position == gridPosition);
+                var clickedEntity = _entities.FirstOrDefault(entity => entity.Position == gridPosition);
 
                 if (clickedEntity == null)
                 {
                     if (_selectedShip.CanMove)
                     {
                         var obstacles = _entities
-                            .Where(entity => entity != _selectedShip)
+                            .Where(entity => entity.IsObstacle(PlayerSide))
                             .Select(entity => entity.Position)
                             .ToList();
                         var path = _astar.Calculate(_selectedShip.Position, gridPosition, obstacles);
@@ -85,14 +86,13 @@ public class GameManager : MonoBehaviour
                     if (_selectedShip.CanFire)
                     {
                         var target = clickedEntity as Ship;
-                        if (target != null && target != _selectedShip)
+                        if (target != null && target.Side != PlayerSide)
                         {
                             var range = _selectedShip.Position.Distance(target.Position);
                             if (range <= _selectedShip.FireRange)
                             {
                                 _animationRunning = true;
                                 StartCoroutine(Attack(_selectedShip, target));
-                                //_selectedShip.Attack(target);
                             }
                         }
                     }
@@ -102,7 +102,10 @@ public class GameManager : MonoBehaviour
 
         foreach (var ship in _entities.OfType<Ship>())
         {
-            if (ship == _selectedShip || _selectedShip == null || !_selectedShip.CanFire || _animationRunning)
+            if (_selectedShip == null || 
+                ship.Side == PlayerSide ||
+                !_selectedShip.CanFire || 
+                _animationRunning)
             {
                 ship.DisableTargetMarker();
             }
@@ -122,19 +125,17 @@ public class GameManager : MonoBehaviour
 
         if (_selectedShip != null && _selectedShip.CanMove && !_animationRunning)
         {
-            var obstacles = _entities.Select(entity => entity.Position).ToList();
-            var destinations = GetDestinations(_selectedShip.Position, obstacles, _selectedShip.MovementRange);
+            var obstacles = new HashSet<GridPosition>(_entities
+                .Where(entity => entity.IsObstacle(PlayerSide))
+                .Select(entity => entity.Position));
+            var entities = new HashSet<GridPosition>(_entities.Select(entity => entity.Position));
+            var destinations = GetDestinations(_selectedShip.Position, obstacles, entities, _selectedShip.MovementRange);
 
             var markers = new Queue<GameObject>(_destinationMarkers);
             _destinationMarkers.Clear();
 
             foreach (var destination in destinations)
             {
-                if (destination == _selectedShip.Position)
-                {
-                    continue;
-                }
-
                 var marker = markers.Any() ? markers.Dequeue() : Instantiate(DestinationMarkerPrefab);
                 if (marker != null)
                 {
@@ -176,8 +177,9 @@ public class GameManager : MonoBehaviour
     }
 
     private static IEnumerable<GridPosition> GetDestinations(
-        GridPosition position, 
-        ICollection<GridPosition> obstacles,
+        GridPosition position,
+        HashSet<GridPosition> obstacles,
+        HashSet<GridPosition> entities,
         int range)
     {
         var destinations = new List<GridPosition>();
@@ -187,13 +189,16 @@ public class GameManager : MonoBehaviour
             return destinations;
         }
 
-        destinations.Add(position);
+        if (!entities.Contains(position))
+        {
+            destinations.Add(position);
+        }
 
         foreach (var neighbor in position.Neighbors)
         {
             if (!obstacles.Contains(neighbor))
             {
-                destinations.AddRange(GetDestinations(neighbor, obstacles, range - 1));
+                destinations.AddRange(GetDestinations(neighbor, obstacles, entities, range - 1));
             }
         }
 

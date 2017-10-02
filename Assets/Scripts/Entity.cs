@@ -24,4 +24,6 @@ public abstract class Entity : MonoBehaviour
         GameManager.Remove(this);
         Destroy(gameObject);
     }
+
+    public abstract bool IsObstacle(Side side);
 }

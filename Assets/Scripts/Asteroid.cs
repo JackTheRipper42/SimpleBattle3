@@ -10,4 +10,9 @@ public class Asteroid : Entity
         base.Start();
         GetComponent<Rigidbody>().angularVelocity = Random.insideUnitSphere * Speed;
     }
+
+    public override bool IsObstacle(Side side)
+    {
+        return true;
+    }
 }
