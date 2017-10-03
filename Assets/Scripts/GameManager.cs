@@ -15,7 +15,7 @@ public class GameManager : MonoBehaviour
     private List<Entity> _entities;
     private Ship _selectedShip;
     private List<GameObject> _destinationMarkers;
-    private bool _animationRunning;
+    private bool _blockUI;
 
     protected virtual void Start()
     {
@@ -28,7 +28,7 @@ public class GameManager : MonoBehaviour
 
     protected virtual void Update()
     {
-        if (Input.mousePresent && Input.GetMouseButtonUp(0) && !_animationRunning)
+        if (Input.mousePresent && Input.GetMouseButtonUp(0) && !_blockUI)
         {
             var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
@@ -54,7 +54,7 @@ public class GameManager : MonoBehaviour
                 }
             }
         }
-        if (Input.mousePresent && Input.GetMouseButtonUp(1) && _selectedShip != null && !_animationRunning)
+        if (Input.mousePresent && Input.GetMouseButtonUp(1) && _selectedShip != null && !_blockUI)
         {
             var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
@@ -76,7 +76,7 @@ public class GameManager : MonoBehaviour
 
                         if (path != null && path.Count <= _selectedShip.MovementRange + 1)
                         {
-                            _animationRunning = true;
+                            _blockUI = true;
                             StartCoroutine(Move(_selectedShip, path));
                         }
                     }
@@ -91,7 +91,7 @@ public class GameManager : MonoBehaviour
                             var range = GridPosition.Distance(_selectedShip.Position, target.Position);
                             if (range <= _selectedShip.FireRange)
                             {
-                                _animationRunning = true;
+                                _blockUI = true;
                                 StartCoroutine(Attack(_selectedShip, target));
                             }
                         }
@@ -105,7 +105,7 @@ public class GameManager : MonoBehaviour
             if (_selectedShip == null || 
                 ship.Side == PlayerSide ||
                 !_selectedShip.CanFire || 
-                _animationRunning)
+                _blockUI)
             {
                 ship.DisableTargetMarker();
             }
@@ -123,7 +123,7 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        if (_selectedShip != null && _selectedShip.CanMove && !_animationRunning)
+        if (_selectedShip != null && _selectedShip.CanMove && !_blockUI)
         {
             var obstacles = new HashSet<GridPosition>(_entities
                 .Where(entity => entity.IsObstacle(PlayerSide))
@@ -170,6 +170,11 @@ public class GameManager : MonoBehaviour
 
     public void EndTurn()
     {
+        if (_blockUI)
+        {
+            return;
+        }
+
         foreach (var ship in _entities.OfType<Ship>())
         {
             ship.StartTurn();
@@ -211,12 +216,12 @@ public class GameManager : MonoBehaviour
         yield return ship.Move(path, Speed);
         SelectionMarker.SetActive(true);
         SelectionMarker.transform.position = GridPosition.ToVector3(ship.Position);
-        _animationRunning = false;
+        _blockUI = false;
     }
 
     private IEnumerator Attack(Ship ship, Ship target)
     {
         yield return ship.Attack(target);
-        _animationRunning = false;
+        _blockUI = false;
     }
 }
