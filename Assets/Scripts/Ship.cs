@@ -18,6 +18,7 @@ public class Ship : Entity
     [SerializeField] private GameObject _uiPrefab;
     [SerializeField] private GameObject[] _explosionPrefabs;
     [SerializeField] private GameObject[] _hitPrefabs;
+    [SerializeField] private GameObject _shipModel;
     // ReSharper restore FieldCanBeMadeReadOnly.Local
     // ReSharper restore ConvertToConstant.Local
 #pragma warning restore 649
@@ -134,7 +135,7 @@ public class Ship : Entity
             yield return second.PlayFireAnimation();
             yield return new WaitForSeconds(flightTime);
             first._health -= second._weaponDamage;
-            if (first._health < 0)
+            if (first._health <= 0)
             {
                 yield return first.PlayShipExplosion();
                 first.Kill();
@@ -158,13 +159,16 @@ public class Ship : Entity
     private IEnumerator PlayShipExplosion()
     {
         var prefab = _explosionPrefabs[Random.Range(0, _explosionPrefabs.Length)];
-        return PlayExplosionAnimation(prefab);
+        _shipModel.SetActive(false);
+        _shipUI.UpdateHealth(_health, _maxHealth);
+        yield return PlayExplosionAnimation(prefab);
     }
 
     private IEnumerator PlayHit()
     {
         var prefab = _hitPrefabs[Random.Range(0, _hitPrefabs.Length)];
-        return PlayExplosionAnimation(prefab);
+        yield return PlayExplosionAnimation(prefab);
+        _shipUI.UpdateHealth(_health, _maxHealth);
     }
 
     private IEnumerator PlayExplosionAnimation(GameObject prefab)
