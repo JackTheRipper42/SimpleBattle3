@@ -23,7 +23,7 @@ public class Ship : Entity
     // ReSharper restore ConvertToConstant.Local
 #pragma warning restore 649
 
-    private ShipUI _shipUI;
+    public ShipUI UI { get; private set; }
 
     public bool CanMove { get; private set; }
 
@@ -38,7 +38,7 @@ public class Ship : Entity
     protected virtual void Awake()
     {
         var uiObject = Instantiate(_uiPrefab, transform);
-        _shipUI = uiObject.GetComponent<ShipUI>();
+        UI = uiObject.GetComponent<ShipUI>();
     }
 
     protected override void Start()
@@ -51,7 +51,7 @@ public class Ship : Entity
     public IEnumerator Attack(Ship target)
     {
         CanFire = false;
-        _shipUI.DisableCanFireMarker();
+        UI.DisableCanFireMarker();
 
         if (Random.Range(0, 10) < 7)
         {
@@ -66,7 +66,7 @@ public class Ship : Entity
     public IEnumerator Move(IList<GridPosition> path, float speed)
     {
         CanMove = false;
-        _shipUI.DisableCanMoveMarker();
+        UI.DisableCanMoveMarker();
         _thrusterAudio.Play();
         for (var index = 1; index < path.Count; index++)
         {
@@ -83,24 +83,14 @@ public class Ship : Entity
         _thrusterAudio.Stop();
     }
 
-    public void EnableTargetMarker()
-    {
-        _shipUI.EnableTargetMarker();
-    }
-
-    public void DisableTargetMarker()
-    {
-        _shipUI.DisableTargetMarker();
-    }
-
     public void StartTurn()
     {
         CanFire = true;
         CanMove = true;
         if (GameManager.PlayerSide == _side)
         {
-            _shipUI.EnableCanFireMarker();
-            _shipUI.EnableCanMoveMarker();
+            UI.EnableCanFireMarker();
+            UI.EnableCanMoveMarker();
         }
     }
 
@@ -160,7 +150,7 @@ public class Ship : Entity
     {
         var prefab = _explosionPrefabs[Random.Range(0, _explosionPrefabs.Length)];
         _shipModel.SetActive(false);
-        _shipUI.UpdateHealth(_health, _maxHealth);
+        UI.gameObject.SetActive(false);
         yield return PlayExplosionAnimation(prefab);
     }
 
@@ -168,7 +158,7 @@ public class Ship : Entity
     {
         var prefab = _hitPrefabs[Random.Range(0, _hitPrefabs.Length)];
         yield return PlayExplosionAnimation(prefab);
-        _shipUI.UpdateHealth(_health, _maxHealth);
+        UI.UpdateHealth(_health, _maxHealth);
     }
 
     private IEnumerator PlayExplosionAnimation(GameObject prefab)

@@ -16,18 +16,30 @@ public class GameManager : MonoBehaviour
     private Ship _selectedShip;
     private List<GameObject> _destinationMarkers;
     private bool _blockUI;
+    private bool _endTurn;
+    private IdiotAI _ai;
 
     protected virtual void Start()
     {
         _astar = new Astar();
+        _ai = new IdiotAI();
         _entities = new List<Entity>();
         _destinationMarkers = new List<GameObject>();
         SelectionMarker.SetActive(false);
         _selectedShip = null;
+        _blockUI = false;
+        _endTurn = false;
     }
 
     protected virtual void Update()
     {
+        if (_endTurn)
+        {
+            _endTurn = false;
+            _blockUI = true;
+            StartCoroutine(FinishTurn());
+        }
+
         if (Input.mousePresent && Input.GetMouseButtonUp(0) && !_blockUI)
         {
             var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -107,18 +119,18 @@ public class GameManager : MonoBehaviour
                 !_selectedShip.CanFire || 
                 _blockUI)
             {
-                ship.DisableTargetMarker();
+                ship.UI.DisableTargetMarker();
             }
             else
             {
                 var range = GridPosition.Distance(_selectedShip.Position, ship.Position);
                 if (range <= _selectedShip.FireRange)
                 {
-                    ship.EnableTargetMarker();
+                    ship.UI.EnableTargetMarker();
                 }
                 else
                 {
-                    ship.DisableTargetMarker();
+                    ship.UI.DisableTargetMarker();
                 }
             }
         }
@@ -175,10 +187,7 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        foreach (var ship in _entities.OfType<Ship>())
-        {
-            ship.StartTurn();
-        }
+        _endTurn = true;
     }
 
     private static IEnumerable<GridPosition> GetDestinations(
@@ -222,6 +231,28 @@ public class GameManager : MonoBehaviour
     private IEnumerator Attack(Ship ship, Ship target)
     {
         yield return ship.Attack(target);
+        _blockUI = false;
+    }
+
+    private IEnumerator FinishTurn()
+    {
+        _blockUI = true;
+        _selectedShip = null;
+        SelectionMarker.SetActive(false);
+
+        foreach (var ship in _entities.OfType<Ship>())
+        {
+            ship.UI.DisableCanFireMarker();
+            ship.UI.DisableCanMoveMarker();
+        }
+
+        yield return _ai.CalculateTurn(_entities, _astar, Side.Redfore, Speed);
+
+        foreach (var ship in _entities.OfType<Ship>())
+        {
+            ship.StartTurn();
+        }
+
         _blockUI = false;
     }
 }
