@@ -14,7 +14,7 @@ public class Ship : Entity
     [SerializeField] private float _weaponDamage = 10f;
     [SerializeField] private float _health;
     [SerializeField] private AudioSource _fireAudio;
-    [SerializeField] private AudioSource _thrusterAudio ;
+    [SerializeField] private AudioSource _thrusterAudio;
     [SerializeField] private GameObject _uiPrefab;
     [SerializeField] private GameObject[] _explosionPrefabs;
     [SerializeField] private GameObject[] _hitPrefabs;
@@ -22,6 +22,8 @@ public class Ship : Entity
     // ReSharper restore FieldCanBeMadeReadOnly.Local
     // ReSharper restore ConvertToConstant.Local
 #pragma warning restore 649
+
+    private bool _isLoading;
 
     public ShipUI UI { get; private set; }
 
@@ -35,8 +37,9 @@ public class Ship : Entity
 
     public Side Side => _side;
 
-    protected virtual void Awake()
+    protected override void Awake()
     {
+        base.Awake();
         var uiObject = Instantiate(_uiPrefab, transform);
         UI = uiObject.GetComponent<ShipUI>();
     }
@@ -44,8 +47,35 @@ public class Ship : Entity
     protected override void Start()
     {
         base.Start();
-        _health = _maxHealth;
-        StartTurn();
+        if (_isLoading)
+        {
+            if (GameManager.PlayerSide == _side)
+            {
+                if (CanFire)
+                {
+                    UI.EnableCanFireMarker();
+                }
+
+                if (CanMove)
+                {
+                    UI.EnableCanMoveMarker();
+                }
+            }
+            else
+            {
+                UI.DisableCanFireMarker();
+                UI.DisableCanMoveMarker();
+
+            }
+            UI.UpdateHealth(_health, _maxHealth);
+
+            _isLoading = false;
+        }
+        else
+        {
+            _health = _maxHealth;
+            StartTurn();
+        }
     }
 
     public IEnumerator Attack(Ship target)
@@ -97,6 +127,36 @@ public class Ship : Entity
     public override bool IsObstacle(Side side)
     {
         return side != _side;
+    }
+
+    public override void Serialize(SerializationInfo serializationInfo)
+    {
+        base.Serialize(serializationInfo);
+
+        serializationInfo.SetValue("MovementRange",_movementRange);
+        serializationInfo.SetValue("FireRange", _fireRange);
+        serializationInfo.SetValue("Side", (int)Side);
+        serializationInfo.SetValue("MaxHealth", _maxHealth);
+        serializationInfo.SetValue("WeaponDamage", _weaponDamage);
+        serializationInfo.SetValue("Health", _health);
+        serializationInfo.SetValue("CanMove", CanMove);
+        serializationInfo.SetValue("CanFire", CanFire);
+    }
+
+    public override void Deserialize(SerializationInfo serializationInfo)
+    {
+        _isLoading = true;
+
+        base.Deserialize(serializationInfo);
+
+        _movementRange = serializationInfo.GetInt32("MovementRange");
+        _fireRange = serializationInfo.GetInt32("FireRange");
+        _side = (Side)serializationInfo.GetInt32("Side");
+        _maxHealth = serializationInfo.GetFloat("MaxHealth");
+        _weaponDamage = serializationInfo.GetFloat("WeaponDamage");
+        _health = serializationInfo.GetFloat("Health");
+        CanMove = serializationInfo.GetBoolean("CanMove");
+        CanFire = serializationInfo.GetBoolean("CanFire");
     }
 
     private static IEnumerator Attack(Ship first, Ship second)

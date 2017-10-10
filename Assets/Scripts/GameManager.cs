@@ -1,15 +1,22 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text;
 using UnityEngine;
+using UnityEngine.UI;
 
-public class GameManager : MonoBehaviour
+public class GameManager : MonoBehaviour, ISerializable
 {
+    private const string SaveFolder = "Saves";
+    private const string SaveFile = "Game1";
+
     public LayerMask GridLayerMask;
-    public GameObject SelectionMarker;
-    public GameObject DestinationMarkerPrefab;
     public float Speed = 30;
     public Side PlayerSide;
+    public GameObject DestinationMarkerPrefab;
+    public GameObject SelectionMarkerPrefab;
+    public Button LoadButton;
 
     private Astar _astar;
     private List<Entity> _entities;
@@ -18,6 +25,7 @@ public class GameManager : MonoBehaviour
     private bool _blockUI;
     private bool _endTurn;
     private IdiotAI _ai;
+    private GameObject _selectionMarker;
 
     protected virtual void Start()
     {
@@ -25,10 +33,12 @@ public class GameManager : MonoBehaviour
         _ai = new IdiotAI();
         _entities = new List<Entity>();
         _destinationMarkers = new List<GameObject>();
-        SelectionMarker.SetActive(false);
+        _selectionMarker = Instantiate(SelectionMarkerPrefab, transform);
+        _selectionMarker.SetActive(false);
         _selectedShip = null;
         _blockUI = false;
         _endTurn = false;
+        LoadButton.interactable = File.Exists(Path.Combine(SaveFolder, SaveFile));
     }
 
     protected virtual void Update()
@@ -54,14 +64,14 @@ public class GameManager : MonoBehaviour
 
                 if (clickedEntity == null)
                 {
-                    SelectionMarker.SetActive(false);
+                    _selectionMarker.SetActive(false);
                     _selectedShip = null;
                 }
                 else
                 {
-                    SelectionMarker.SetActive(true);
+                    _selectionMarker.SetActive(true);
                     var newPosition = GridPosition.ToVector3(gridPosition);
-                    SelectionMarker.transform.position = newPosition;
+                    _selectionMarker.transform.position = newPosition;
                     _selectedShip = clickedEntity;
                 }
             }
@@ -190,6 +200,32 @@ public class GameManager : MonoBehaviour
         _endTurn = true;
     }
 
+    public void Save()
+    {
+        if (!Directory.Exists(SaveFolder))
+        {
+            Directory.CreateDirectory(SaveFolder);
+        }
+        using (var stream = new FileStream(Path.Combine(SaveFolder, SaveFile), FileMode.Create, FileAccess.Write))
+        using (var writer = new BinaryWriter(stream, Encoding.UTF8, false))
+        {
+            var serializationInfo = new SerializationInfo();
+            Serialize(serializationInfo);
+            serializationInfo.Write(writer);
+        }
+        LoadButton.interactable = true;
+    }
+
+    public void Load()
+    {
+        using (var stream = new FileStream(Path.Combine(SaveFolder, SaveFile), FileMode.Open, FileAccess.Read))
+        using (var reader = new BinaryReader(stream, Encoding.UTF8, false))
+        {
+            var serializationInfo = new SerializationInfo(reader);
+            Deserialize(serializationInfo);
+        }
+    }
+
     private static IEnumerable<GridPosition> GetDestinations(
         GridPosition position,
         HashSet<GridPosition> obstacles,
@@ -221,10 +257,10 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator Move(Ship ship, IList<GridPosition> path)
     {
-        SelectionMarker.SetActive(false);
+        _selectionMarker.SetActive(false);
         yield return ship.Move(path, Speed);
-        SelectionMarker.SetActive(true);
-        SelectionMarker.transform.position = GridPosition.ToVector3(ship.Position);
+        _selectionMarker.SetActive(true);
+        _selectionMarker.transform.position = GridPosition.ToVector3(ship.Position);
         _blockUI = false;
     }
 
@@ -238,7 +274,7 @@ public class GameManager : MonoBehaviour
     {
         _blockUI = true;
         _selectedShip = null;
-        SelectionMarker.SetActive(false);
+        _selectionMarker.SetActive(false);
 
         foreach (var ship in _entities.OfType<Ship>())
         {
@@ -254,5 +290,37 @@ public class GameManager : MonoBehaviour
         }
 
         _blockUI = false;
+    }
+
+    public void Serialize(SerializationInfo serializationInfo)
+    {
+        serializationInfo.SetValue("Entities", _entities.Count);
+        for (var index = 0; index < _entities.Count; index++)
+        {
+            var serializedEntity = new SerializationInfo();
+            _entities[index].Serialize(serializedEntity);
+            serializationInfo.SetValue($"Entity{index}", serializedEntity);
+        }
+    }
+
+    public void Deserialize(SerializationInfo serializationInfo)
+    {
+        foreach (var entity in _entities)
+        {
+            Destroy(entity.gameObject);
+        }
+
+        _entities.Clear();
+        _selectionMarker.SetActive(false);
+        _selectedShip = null;
+        _blockUI = false;
+        _endTurn = false;
+
+        var count = serializationInfo.GetInt32("Entities");
+        for (var index = 0; index < count; index++)
+        {
+            var serializedEntity = serializationInfo.GetValue($"Entity{index}");
+            Entity.Create(serializedEntity);
+        }
     }
 }

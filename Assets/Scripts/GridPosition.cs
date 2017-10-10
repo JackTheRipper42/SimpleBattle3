@@ -7,7 +7,7 @@ public struct GridPosition : IEquatable<GridPosition>
     private const int Size = 1;
     private const float Sqrt32 = 0.86602540378443864676372317075294f;
 
-    private GridPosition(int u, int v)
+    public GridPosition(int u, int v)
     {
         U = u;
         V = v;

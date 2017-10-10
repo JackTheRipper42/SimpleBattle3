@@ -284,6 +284,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff506a723fac7e943af2afdc3bf13edb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _prefabName: Ship1
   _movementRange: 4
   _fireRange: 1
   _side: 0
