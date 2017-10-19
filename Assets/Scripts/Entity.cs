@@ -2,13 +2,7 @@
 
 public abstract class Entity : MonoBehaviour, ISerializable
 {
-#pragma warning disable 649
-    // ReSharper disable ConvertToConstant.Local
-    // ReSharper disable FieldCanBeMadeReadOnly.Local
-    [SerializeField] private string _prefabName;
-    // ReSharper restore FieldCanBeMadeReadOnly.Local
-    // ReSharper restore ConvertToConstant.Local
-#pragma warning restore 649
+    public string PrefabName;
 
     protected GameManager GameManager { get; private set; }
 
@@ -41,7 +35,7 @@ public abstract class Entity : MonoBehaviour, ISerializable
 
     public virtual void Serialize(SerializationInfo serializationInfo)
     {
-        serializationInfo.SetValue(EntitySerializationNames.Prefab, _prefabName);
+        serializationInfo.SetValue(EntitySerializationNames.Prefab, PrefabName);
         serializationInfo.SetValue(EntitySerializationNames.PositionX, transform.position.x);
         serializationInfo.SetValue(EntitySerializationNames.PositionY, transform.position.y);
         serializationInfo.SetValue(EntitySerializationNames.PositionZ, transform.position.z);
@@ -49,7 +43,7 @@ public abstract class Entity : MonoBehaviour, ISerializable
 
     public virtual void Deserialize(SerializationInfo serializationInfo)
     {
-        _prefabName = serializationInfo.GetString(EntitySerializationNames.Prefab);
+        PrefabName = serializationInfo.GetString(EntitySerializationNames.Prefab);
         transform.position = new Vector3(
             serializationInfo.GetSingle(EntitySerializationNames.PositionX),
             serializationInfo.GetSingle(EntitySerializationNames.PositionY),

@@ -284,22 +284,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff506a723fac7e943af2afdc3bf13edb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _prefabName: Ship2
-  _movementRange: 2
-  _fireRange: 2
-  _side: 1
-  _maxHealth: 100
-  _weaponDamage: 10
-  _health: 0
-  _fireAudio: {fileID: 82672467875697770}
-  _thrusterAudio: {fileID: 82686158074760600}
-  _uiPrefab: {fileID: 1276408358586872, guid: b90fc8a4aca83864ea30d840e96a778e, type: 2}
-  _explosionPrefabs:
+  PrefabName: Ship2
+  MovementRange: 2
+  FireRange: 2
+  Side: 1
+  MaxHealth: 100
+  WeaponDamage: 10
+  Health: 0
+  FireAudio: {fileID: 82672467875697770}
+  ThrusterAudio: {fileID: 82686158074760600}
+  UIPrefab: {fileID: 1276408358586872, guid: b90fc8a4aca83864ea30d840e96a778e, type: 2}
+  ExplosionPrefabs:
   - {fileID: 1110476055710878, guid: bcf23823da3a50244aae4b900c1e9710, type: 2}
   - {fileID: 1999909288363308, guid: 79c7d013c7292a6459df81761e0a8b20, type: 2}
   - {fileID: 1921831799163812, guid: 8cc9c2ee9f387254bb6a8d3483ceb571, type: 2}
-  _hitPrefabs:
+  HitPrefabs:
   - {fileID: 1567461736115704, guid: a69e5b77d6f6fa6499ba2e402c7068a8, type: 2}
   - {fileID: 1134474815901348, guid: 770d8f5ef31c1814b81b336b9cc41048, type: 2}
   - {fileID: 1845165753173170, guid: b98386483fe2b834687e74b1b620a5fd, type: 2}
-  _shipModel: {fileID: 1075172286446528}
+  ShipModel: {fileID: 1075172286446528}

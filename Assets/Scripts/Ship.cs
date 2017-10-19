@@ -1,27 +1,22 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class Ship : Entity
 {
-#pragma warning disable 649
-    // ReSharper disable ConvertToConstant.Local
-    // ReSharper disable FieldCanBeMadeReadOnly.Local
-    [SerializeField] private int _movementRange = 4;
-    [SerializeField] private int _fireRange = 1;
-    [SerializeField] private Side _side;
-    [SerializeField] private float _maxHealth = 100f;
-    [SerializeField] private float _weaponDamage = 10f;
-    [SerializeField] private float _health;
-    [SerializeField] private AudioSource _fireAudio;
-    [SerializeField] private AudioSource _thrusterAudio;
-    [SerializeField] private GameObject _uiPrefab;
-    [SerializeField] private GameObject[] _explosionPrefabs;
-    [SerializeField] private GameObject[] _hitPrefabs;
-    [SerializeField] private GameObject _shipModel;
-    // ReSharper restore FieldCanBeMadeReadOnly.Local
-    // ReSharper restore ConvertToConstant.Local
-#pragma warning restore 649
+    public int MovementRange = 4;
+    public int FireRange = 1;
+    public Side Side;
+    public float MaxHealth = 100f;
+    public float WeaponDamage = 10f;
+    public float Health;
+    public AudioSource FireAudio;
+    public AudioSource ThrusterAudio;
+    public GameObject UIPrefab;
+    public GameObject[] ExplosionPrefabs;
+    public GameObject[] HitPrefabs;
+    public GameObject ShipModel;
 
     private bool _isLoading;
 
@@ -31,16 +26,10 @@ public class Ship : Entity
 
     public bool CanFire { get; private set; }
 
-    public int MovementRange => _movementRange;
-
-    public int FireRange => _fireRange;
-
-    public Side Side => _side;
-
     protected override void Awake()
     {
         base.Awake();
-        var uiObject = Instantiate(_uiPrefab, transform);
+        var uiObject = Instantiate(UIPrefab, transform);
         UI = uiObject.GetComponent<ShipUI>();
     }
 
@@ -49,7 +38,7 @@ public class Ship : Entity
         base.Start();
         if (_isLoading)
         {
-            if (GameManager.PlayerSide == _side)
+            if (GameManager.PlayerSide == Side)
             {
                 if (CanFire)
                 {
@@ -67,13 +56,13 @@ public class Ship : Entity
                 UI.DisableCanMoveMarker();
 
             }
-            UI.UpdateHealth(_health, _maxHealth);
+            UI.UpdateHealth(Health, MaxHealth);
 
             _isLoading = false;
         }
         else
         {
-            _health = _maxHealth;
+            Health = MaxHealth;
             StartTurn();
         }
     }
@@ -97,7 +86,7 @@ public class Ship : Entity
     {
         CanMove = false;
         UI.DisableCanMoveMarker();
-        _thrusterAudio.Play();
+        ThrusterAudio.Play();
         for (var index = 1; index < path.Count; index++)
         {
             var end = GridPosition.ToVector3(path[index]);
@@ -110,14 +99,14 @@ public class Ship : Entity
             }
             Move(path[index]);
         }
-        _thrusterAudio.Stop();
+        ThrusterAudio.Stop();
     }
 
     public void StartTurn()
     {
         CanFire = true;
         CanMove = true;
-        if (GameManager.PlayerSide == _side)
+        if (GameManager.PlayerSide == Side)
         {
             UI.EnableCanFireMarker();
             UI.EnableCanMoveMarker();
@@ -126,19 +115,19 @@ public class Ship : Entity
 
     public override bool IsObstacle(Side side)
     {
-        return side != _side;
+        return side != Side;
     }
 
     public override void Serialize(SerializationInfo serializationInfo)
     {
         base.Serialize(serializationInfo);
 
-        serializationInfo.SetValue(ShipSerializationNames.MovementRange,_movementRange);
-        serializationInfo.SetValue(ShipSerializationNames.FireRange, _fireRange);
+        serializationInfo.SetValue(ShipSerializationNames.MovementRange,MovementRange);
+        serializationInfo.SetValue(ShipSerializationNames.FireRange, FireRange);
         serializationInfo.SetValue(ShipSerializationNames.Side, (int)Side);
-        serializationInfo.SetValue(ShipSerializationNames.MaxHealth, _maxHealth);
-        serializationInfo.SetValue(ShipSerializationNames.WeaponDamage, _weaponDamage);
-        serializationInfo.SetValue(ShipSerializationNames.Health, _health);
+        serializationInfo.SetValue(ShipSerializationNames.MaxHealth, MaxHealth);
+        serializationInfo.SetValue(ShipSerializationNames.WeaponDamage, WeaponDamage);
+        serializationInfo.SetValue(ShipSerializationNames.Health, Health);
         serializationInfo.SetValue(ShipSerializationNames.CanMove, CanMove);
         serializationInfo.SetValue(ShipSerializationNames.CanFire, CanFire);
     }
@@ -149,12 +138,12 @@ public class Ship : Entity
 
         base.Deserialize(serializationInfo);
 
-        _movementRange = serializationInfo.GetInt32(ShipSerializationNames.MovementRange);
-        _fireRange = serializationInfo.GetInt32(ShipSerializationNames.FireRange);
-        _side = (Side)serializationInfo.GetInt32(ShipSerializationNames.Side);
-        _maxHealth = serializationInfo.GetSingle(ShipSerializationNames.MaxHealth);
-        _weaponDamage = serializationInfo.GetSingle(ShipSerializationNames.WeaponDamage);
-        _health = serializationInfo.GetSingle(ShipSerializationNames.Health);
+        MovementRange = serializationInfo.GetInt32(ShipSerializationNames.MovementRange);
+        FireRange = serializationInfo.GetInt32(ShipSerializationNames.FireRange);
+        Side = (Side)serializationInfo.GetInt32(ShipSerializationNames.Side);
+        MaxHealth = serializationInfo.GetSingle(ShipSerializationNames.MaxHealth);
+        WeaponDamage = serializationInfo.GetSingle(ShipSerializationNames.WeaponDamage);
+        Health = serializationInfo.GetSingle(ShipSerializationNames.Health);
         CanMove = serializationInfo.GetBoolean(ShipSerializationNames.CanMove);
         CanFire = serializationInfo.GetBoolean(ShipSerializationNames.CanFire);
     }
@@ -168,8 +157,8 @@ public class Ship : Entity
         {
             yield return first.PlayFireAnimation();
             yield return new WaitForSeconds(flightTime);
-            second._health -= first._weaponDamage;
-            if (second._health <= 0)
+            second.Health -= first.WeaponDamage;
+            if (second.Health <= 0)
             {
                 yield return second.PlayShipExplosion();
                 second.Kill();
@@ -179,13 +168,13 @@ public class Ship : Entity
                 yield return second.PlayHit();
             }
         }
-        if (second._health > 0 && range <= second.FireRange)
+        if (second.Health > 0 && range <= second.FireRange)
         {
             yield return new WaitForSeconds(0.15f);
             yield return second.PlayFireAnimation();
             yield return new WaitForSeconds(flightTime);
-            first._health -= second._weaponDamage;
-            if (first._health <= 0)
+            first.Health -= second.WeaponDamage;
+            if (first.Health <= 0)
             {
                 yield return first.PlayShipExplosion();
                 first.Kill();
@@ -199,8 +188,8 @@ public class Ship : Entity
 
     private IEnumerator PlayFireAnimation()
     {
-        _fireAudio.Play();
-        while (_fireAudio.isPlaying)
+        FireAudio.Play();
+        while (FireAudio.isPlaying)
         {
             yield return new WaitForEndOfFrame();
         }
@@ -208,17 +197,17 @@ public class Ship : Entity
 
     private IEnumerator PlayShipExplosion()
     {
-        var prefab = _explosionPrefabs[Random.Range(0, _explosionPrefabs.Length)];
-        _shipModel.SetActive(false);
+        var prefab = ExplosionPrefabs[Random.Range(0, ExplosionPrefabs.Length)];
+        ShipModel.SetActive(false);
         UI.gameObject.SetActive(false);
         yield return PlayExplosionAnimation(prefab);
     }
 
     private IEnumerator PlayHit()
     {
-        var prefab = _hitPrefabs[Random.Range(0, _hitPrefabs.Length)];
+        var prefab = HitPrefabs[Random.Range(0, HitPrefabs.Length)];
         yield return PlayExplosionAnimation(prefab);
-        UI.UpdateHealth(_health, _maxHealth);
+        UI.UpdateHealth(Health, MaxHealth);
     }
 
     private IEnumerator PlayExplosionAnimation(GameObject prefab)
