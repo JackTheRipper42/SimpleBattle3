@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using UnityEngine;
 
 public class SerializationInfo
 {
@@ -73,23 +72,6 @@ public class SerializationInfo
         _data[name] = value;
     }
 
-    public void SetValue(string name, GridPosition value)
-    {
-        var serializationInfo = new SerializationInfo();
-        serializationInfo.SetValue("U", value.U);
-        serializationInfo.SetValue("V", value.V);
-        _data[name] = serializationInfo;
-    }
-
-    public void SetValue(string name, Vector3 value)
-    {
-        var serializationInfo = new SerializationInfo();
-        serializationInfo.SetValue("x", value.x);
-        serializationInfo.SetValue("y", value.y);
-        serializationInfo.SetValue("z", value.z);
-        _data[name] = serializationInfo;
-    }
-
     public void SetValue(string name, bool value)
     {
         _data[name] = value;
@@ -100,7 +82,7 @@ public class SerializationInfo
         _data[name] = value;
     }
 
-    public float GetFloat(string name)
+    public float GetSingle(string name)
     {
         return (float) _data[name];
     }
@@ -113,23 +95,6 @@ public class SerializationInfo
     public string GetString(string name)
     {
         return (string) _data[name];
-    }
-
-    public GridPosition GetGridPosition(string name)
-    {
-        var serializationInfo = (SerializationInfo)_data[name];
-        var u = serializationInfo.GetInt32("U");
-        var v = serializationInfo.GetInt32("V");
-        return new GridPosition(u,v);
-    }
-
-    public Vector3 GetVector3(string name)
-    {
-        var serializationInfo = (SerializationInfo)_data[name];
-        var x = serializationInfo.GetFloat("x");
-        var y = serializationInfo.GetFloat("y");
-        var z = serializationInfo.GetFloat("z");
-        return new Vector3(x, y, z);
     }
 
     public bool GetBoolean(string name)

@@ -41,19 +41,24 @@ public abstract class Entity : MonoBehaviour, ISerializable
 
     public virtual void Serialize(SerializationInfo serializationInfo)
     {
-        serializationInfo.SetValue("Prefab", _prefabName);
-        serializationInfo.SetValue("Position", transform.position);
+        serializationInfo.SetValue(EntitySerializationNames.Prefab, _prefabName);
+        serializationInfo.SetValue(EntitySerializationNames.PositionX, transform.position.x);
+        serializationInfo.SetValue(EntitySerializationNames.PositionY, transform.position.y);
+        serializationInfo.SetValue(EntitySerializationNames.PositionZ, transform.position.z);
     }
 
     public virtual void Deserialize(SerializationInfo serializationInfo)
     {
-        _prefabName = serializationInfo.GetString("Prefab");
-        transform.position = serializationInfo.GetVector3("Position");
+        _prefabName = serializationInfo.GetString(EntitySerializationNames.Prefab);
+        transform.position = new Vector3(
+            serializationInfo.GetSingle(EntitySerializationNames.PositionX),
+            serializationInfo.GetSingle(EntitySerializationNames.PositionY),
+            serializationInfo.GetSingle(EntitySerializationNames.PositionZ));
     }
 
     public static GameObject Create(SerializationInfo serializationInfo)
     {
-        var prefab = Resources.Load<GameObject>($"Prefabs/{serializationInfo.GetString("Prefab")}");
+        var prefab = Resources.Load<GameObject>($"Prefabs/{serializationInfo.GetString(EntitySerializationNames.Prefab)}");
         var gameObject = Instantiate(prefab);
         var entity = gameObject.GetComponent<Entity>();
         entity.Deserialize(serializationInfo);

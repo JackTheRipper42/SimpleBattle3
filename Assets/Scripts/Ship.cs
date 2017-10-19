@@ -133,14 +133,14 @@ public class Ship : Entity
     {
         base.Serialize(serializationInfo);
 
-        serializationInfo.SetValue("MovementRange",_movementRange);
-        serializationInfo.SetValue("FireRange", _fireRange);
-        serializationInfo.SetValue("Side", (int)Side);
-        serializationInfo.SetValue("MaxHealth", _maxHealth);
-        serializationInfo.SetValue("WeaponDamage", _weaponDamage);
-        serializationInfo.SetValue("Health", _health);
-        serializationInfo.SetValue("CanMove", CanMove);
-        serializationInfo.SetValue("CanFire", CanFire);
+        serializationInfo.SetValue(ShipSerializationNames.MovementRange,_movementRange);
+        serializationInfo.SetValue(ShipSerializationNames.FireRange, _fireRange);
+        serializationInfo.SetValue(ShipSerializationNames.Side, (int)Side);
+        serializationInfo.SetValue(ShipSerializationNames.MaxHealth, _maxHealth);
+        serializationInfo.SetValue(ShipSerializationNames.WeaponDamage, _weaponDamage);
+        serializationInfo.SetValue(ShipSerializationNames.Health, _health);
+        serializationInfo.SetValue(ShipSerializationNames.CanMove, CanMove);
+        serializationInfo.SetValue(ShipSerializationNames.CanFire, CanFire);
     }
 
     public override void Deserialize(SerializationInfo serializationInfo)
@@ -149,14 +149,14 @@ public class Ship : Entity
 
         base.Deserialize(serializationInfo);
 
-        _movementRange = serializationInfo.GetInt32("MovementRange");
-        _fireRange = serializationInfo.GetInt32("FireRange");
-        _side = (Side)serializationInfo.GetInt32("Side");
-        _maxHealth = serializationInfo.GetFloat("MaxHealth");
-        _weaponDamage = serializationInfo.GetFloat("WeaponDamage");
-        _health = serializationInfo.GetFloat("Health");
-        CanMove = serializationInfo.GetBoolean("CanMove");
-        CanFire = serializationInfo.GetBoolean("CanFire");
+        _movementRange = serializationInfo.GetInt32(ShipSerializationNames.MovementRange);
+        _fireRange = serializationInfo.GetInt32(ShipSerializationNames.FireRange);
+        _side = (Side)serializationInfo.GetInt32(ShipSerializationNames.Side);
+        _maxHealth = serializationInfo.GetSingle(ShipSerializationNames.MaxHealth);
+        _weaponDamage = serializationInfo.GetSingle(ShipSerializationNames.WeaponDamage);
+        _health = serializationInfo.GetSingle(ShipSerializationNames.Health);
+        CanMove = serializationInfo.GetBoolean(ShipSerializationNames.CanMove);
+        CanFire = serializationInfo.GetBoolean(ShipSerializationNames.CanFire);
     }
 
     private static IEnumerator Attack(Ship first, Ship second)
@@ -263,4 +263,5 @@ public class Ship : Entity
 
         Destroy(explosion);
     }
+
 }
