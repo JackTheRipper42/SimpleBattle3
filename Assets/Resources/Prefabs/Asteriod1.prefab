@@ -137,5 +137,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 91ed238f6f7e9d345aee19a2a270a972, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _prefabName: Asteriod1
+  PrefabName: Asteriod1
   Speed: 1
