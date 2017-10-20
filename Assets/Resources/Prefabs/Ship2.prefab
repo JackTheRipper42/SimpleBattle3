@@ -291,6 +291,10 @@ MonoBehaviour:
   MaxHealth: 100
   WeaponDamage: 10
   Health: 0
+  MaxShield: 100
+  Shield: 0
+  ShieldAbsorption: 0.85
+  SalvoFlightTime: 0.35
   FireAudio: {fileID: 82672467875697770}
   ThrusterAudio: {fileID: 82686158074760600}
   UIPrefab: {fileID: 1276408358586872, guid: b90fc8a4aca83864ea30d840e96a778e, type: 2}

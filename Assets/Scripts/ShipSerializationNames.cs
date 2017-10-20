@@ -8,4 +8,7 @@
     public const string Health = "Health";
     public const string CanMove = "CanMove";
     public const string CanFire = "CanFire";
+    public const string MaxShield = "MaxShield";
+    public const string Shield = "Shield";
+    public const string ShieldAbsorption = "ShieldAbsorption";
 }
