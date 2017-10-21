@@ -286,15 +286,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PrefabName: Ship2
   MovementRange: 2
-  FireRange: 2
   Side: 1
-  MaxHealth: 100
-  WeaponDamage: 10
-  Health: 0
-  MaxShield: 100
-  Shield: 0
-  ShieldAbsorption: 0.85
   SalvoFlightTime: 0.35
+  Weapon:
+    Range: 2
+    Damage: 10
+    Accuracy: 0.8
+  Shield:
+    MaxHitPoints: 100
+    HitPoints: 0
+    Absorption: 0.85
+  Structure:
+    MaxHitPoints: 100
+    HitPoints: 0
   FireAudio: {fileID: 82672467875697770}
   ThrusterAudio: {fileID: 82686158074760600}
   UIPrefab: {fileID: 1276408358586872, guid: b90fc8a4aca83864ea30d840e96a778e, type: 2}
