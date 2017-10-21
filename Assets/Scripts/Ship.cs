@@ -1,20 +1,17 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Serialization;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
 public class Ship : Entity
 {
     public int MovementRange = 4;
-    public int FireRange = 1;
     public Side Side;
-    public float MaxHealth = 100f;
-    public float WeaponDamage = 10f;
-    public float Health;
-    public float MaxShield = 100;
-    public float Shield;
-    [Range(0f, 1f)] public float ShieldAbsorption = 0.8f;
     public float SalvoFlightTime = 0.35f;
+    public Weapon Weapon;
+    public Shield Shield;
+    public Structure Structure;
     public AudioSource FireAudio;
     public AudioSource ThrusterAudio;
     public GameObject UIPrefab;
@@ -60,15 +57,15 @@ public class Ship : Entity
                 UI.DisableCanMoveMarker();
 
             }
-            UI.UpdateHealth(Health, MaxHealth);
-            UI.UpdateShield(Shield, MaxShield);
+            UI.UpdateStructure(Structure);
+            UI.UpdateShield(Shield);
 
             _isLoading = false;
         }
         else
         {
-            Health = MaxHealth;
-            Shield = MaxShield;
+            Structure.HitPoints = Structure.MaxHitPoints;
+            Shield.HitPoints = Shield.MaxHitPoints;
             StartTurn();
         }
     }
@@ -129,16 +126,12 @@ public class Ship : Entity
         base.Serialize(serializationInfo);
 
         serializationInfo.SetValue(ShipSerializationNames.MovementRange, MovementRange);
-        serializationInfo.SetValue(ShipSerializationNames.FireRange, FireRange);
         serializationInfo.SetValue(ShipSerializationNames.Side, (int) Side);
-        serializationInfo.SetValue(ShipSerializationNames.MaxHealth, MaxHealth);
-        serializationInfo.SetValue(ShipSerializationNames.WeaponDamage, WeaponDamage);
-        serializationInfo.SetValue(ShipSerializationNames.Health, Health);
         serializationInfo.SetValue(ShipSerializationNames.CanMove, CanMove);
         serializationInfo.SetValue(ShipSerializationNames.CanFire, CanFire);
+        serializationInfo.SetValue(ShipSerializationNames.Structure, Structure);
         serializationInfo.SetValue(ShipSerializationNames.Shield, Shield);
-        serializationInfo.SetValue(ShipSerializationNames.MaxShield, MaxShield);
-        serializationInfo.SetValue(ShipSerializationNames.ShieldAbsorption, ShieldAbsorption);
+        serializationInfo.SetValue(ShipSerializationNames.Weapon, Weapon);
     }
 
     public override void Deserialize(SerializationInfo serializationInfo)
@@ -148,27 +141,23 @@ public class Ship : Entity
         base.Deserialize(serializationInfo);
 
         MovementRange = serializationInfo.GetInt32(ShipSerializationNames.MovementRange);
-        FireRange = serializationInfo.GetInt32(ShipSerializationNames.FireRange);
         Side = (Side)serializationInfo.GetInt32(ShipSerializationNames.Side);
-        MaxHealth = serializationInfo.GetSingle(ShipSerializationNames.MaxHealth);
-        WeaponDamage = serializationInfo.GetSingle(ShipSerializationNames.WeaponDamage);
-        Health = serializationInfo.GetSingle(ShipSerializationNames.Health);
         CanMove = serializationInfo.GetBoolean(ShipSerializationNames.CanMove);
         CanFire = serializationInfo.GetBoolean(ShipSerializationNames.CanFire);
-        Shield = serializationInfo.GetSingle(ShipSerializationNames.Shield);
-        MaxShield = serializationInfo.GetSingle(ShipSerializationNames.MaxShield);
-        ShieldAbsorption = serializationInfo.GetSingle(ShipSerializationNames.ShieldAbsorption);
+        Structure = serializationInfo.GetValue<Structure>(ShipSerializationNames.Structure);
+        Shield = serializationInfo.GetValue<Shield>(ShipSerializationNames.Shield);
+        Weapon = serializationInfo.GetValue<Weapon>(ShipSerializationNames.Weapon);
     }
 
     private IEnumerator Attack(Ship first, Ship second)
     {
         var range = GridPosition.Distance(first.Position, second.Position);
 
-        if (range <= first.FireRange)
+        if (range <= first.Weapon.Range)
         {
             yield return FireSalvo(first, second);
         }
-        if (second.Health > 0 && range <= second.FireRange)
+        if (second.Structure.HitPoints > 0 && range <= second.Weapon.Range)
         {
             yield return new WaitForSeconds(0.15f);
             yield return FireSalvo(second, first);
@@ -179,10 +168,15 @@ public class Ship : Entity
     {
         yield return attacker.PlayFireAnimation();
         yield return new WaitForSeconds(SalvoFlightTime);
-        var shieldDamage = Mathf.Min(target.Shield, attacker.WeaponDamage * target.ShieldAbsorption);
-        target.Shield -= shieldDamage;
-        target.Health -= attacker.WeaponDamage - shieldDamage;
-        if (target.Health <= 0)
+        if (Random.Range(0f, 1f) > attacker.Weapon.Accuracy)
+        {
+            Debug.Log("miss");
+            yield break;
+        }
+        var shieldDamage = Mathf.Min(target.Shield.HitPoints, attacker.Weapon.Damage * target.Shield.Absorption);
+        target.Shield.HitPoints -= shieldDamage;
+        target.Structure.HitPoints -= attacker.Weapon.Damage - shieldDamage;
+        if (target.Structure.HitPoints <= 0)
         {
             yield return target.PlayShipExplosion();
             target.Kill();
@@ -214,8 +208,8 @@ public class Ship : Entity
     {
         var prefab = HitPrefabs[Random.Range(0, HitPrefabs.Length)];
         yield return PlayExplosionAnimation(prefab);
-        UI.UpdateHealth(Health, MaxHealth);
-        UI.UpdateShield(Shield, MaxShield);
+        UI.UpdateStructure(Structure);
+        UI.UpdateShield(Shield);
     }
 
     private IEnumerator PlayExplosionAnimation(GameObject prefab)

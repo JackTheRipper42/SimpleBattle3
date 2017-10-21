@@ -18,7 +18,7 @@ public class IdiotAI
                 selectNewEnemy = false;
                 var enemy = GetNearestEnemy(ship, enemyShips.Except(blackList));
 
-                if (GridPosition.Distance(ship.Position, enemy.Position) <= ship.FireRange)
+                if (GridPosition.Distance(ship.Position, enemy.Position) <= ship.Weapon.Range)
                 {
                     yield return ship.Attack(enemy);
                 }
@@ -30,7 +30,7 @@ public class IdiotAI
                         .Select(entity => entity.Position)
                         .ToList();
 
-                    var destinations = GetDestinations(enemy.Position, ship.FireRange)
+                    var destinations = GetDestinations(enemy.Position, ship.Weapon.Range)
                         .Except(entities.Select(entity => entity.Position))
                         .Distinct();
 
@@ -51,7 +51,7 @@ public class IdiotAI
                             : shortestPath;
                         yield return ship.Move(path, speed);
 
-                        if (GridPosition.Distance(ship.Position, enemy.Position) <= ship.FireRange)
+                        if (GridPosition.Distance(ship.Position, enemy.Position) <= ship.Weapon.Range)
                         {
                             yield return ship.Attack(enemy);
                         }

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Serialization;
+using UnityEngine;
 
 public abstract class Entity : MonoBehaviour, ISerializable
 {
@@ -48,14 +49,5 @@ public abstract class Entity : MonoBehaviour, ISerializable
             serializationInfo.GetSingle(EntitySerializationNames.PositionX),
             serializationInfo.GetSingle(EntitySerializationNames.PositionY),
             serializationInfo.GetSingle(EntitySerializationNames.PositionZ));
-    }
-
-    public static GameObject Create(SerializationInfo serializationInfo)
-    {
-        var prefab = Resources.Load<GameObject>($"Prefabs/{serializationInfo.GetString(EntitySerializationNames.Prefab)}");
-        var gameObject = Instantiate(prefab);
-        var entity = gameObject.GetComponent<Entity>();
-        entity.Deserialize(serializationInfo);
-        return gameObject;
     }
 }

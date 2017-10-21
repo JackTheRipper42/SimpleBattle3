@@ -53,11 +53,11 @@ public class ShipUI : MonoBehaviour
         CanFireMarker.SetActive(false);
     }
 
-    public void UpdateHealth(float currentHealth, float maxHealth)
+    public void UpdateStructure(Structure structure)
     {
         const int minValue = 0;
         const int maxValue = 10000;
-        var value = Mathf.RoundToInt(currentHealth / maxHealth * maxValue);
+        var value = Mathf.RoundToInt(structure.HitPoints / structure.MaxHitPoints * maxValue);
         if (value > minValue && value < maxValue)
         {
             EnableHealth();
@@ -71,11 +71,11 @@ public class ShipUI : MonoBehaviour
         }
     }
 
-    public void UpdateShield(float currentShield, float maxShield)
+    public void UpdateShield(Shield shield)
     {
         const int minValue = 0;
         const int maxValue = 10000;
-        var value = Mathf.RoundToInt(currentShield / maxShield * maxValue);
+        var value = Mathf.RoundToInt(shield.HitPoints / shield.MaxHitPoints * maxValue);
         if (value > minValue && value < maxValue)
         {
             EnableShield();

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Serialization;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -111,7 +112,7 @@ public class GameManager : MonoBehaviour, ISerializable
                         if (target != null && target.Side != PlayerSide)
                         {
                             var range = GridPosition.Distance(_selectedShip.Position, target.Position);
-                            if (range <= _selectedShip.FireRange)
+                            if (range <= _selectedShip.Weapon.Range)
                             {
                                 _blockUI = true;
                                 StartCoroutine(Attack(_selectedShip, target));
@@ -134,7 +135,7 @@ public class GameManager : MonoBehaviour, ISerializable
             else
             {
                 var range = GridPosition.Distance(_selectedShip.Position, ship.Position);
-                if (range <= _selectedShip.FireRange)
+                if (range <= _selectedShip.Weapon.Range)
                 {
                     ship.UI.EnableTargetMarker();
                 }
@@ -297,9 +298,8 @@ public class GameManager : MonoBehaviour, ISerializable
         serializationInfo.SetValue("Entities", _entities.Count);
         for (var index = 0; index < _entities.Count; index++)
         {
-            var serializedEntity = new SerializationInfo();
-            _entities[index].Serialize(serializedEntity);
-            serializationInfo.SetValue($"Entity{index}", serializedEntity);
+            var entity = _entities[index];
+            serializationInfo.SetValue($"Entity{index}", entity);
         }
     }
 
@@ -316,11 +316,11 @@ public class GameManager : MonoBehaviour, ISerializable
         _blockUI = false;
         _endTurn = false;
 
+        var factory = new EntityFactory();
         var count = serializationInfo.GetInt32("Entities");
         for (var index = 0; index < count; index++)
         {
-            var serializedEntity = serializationInfo.GetValue($"Entity{index}");
-            Entity.Create(serializedEntity);
+            serializationInfo.GetValue($"Entity{index}", factory);
         }
     }
 }

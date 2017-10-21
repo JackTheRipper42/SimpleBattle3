@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Serialization;
+using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
 public class Asteroid : Entity
