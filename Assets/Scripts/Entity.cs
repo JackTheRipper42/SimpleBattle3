@@ -5,7 +5,7 @@ public abstract class Entity : MonoBehaviour, ISerializable
 {
     public string PrefabName;
 
-    protected GameManager GameManager { get; private set; }
+    protected MissionManager MissionManager { get; private set; }
 
     public GridPosition Position { get; private set; }
 
@@ -16,8 +16,8 @@ public abstract class Entity : MonoBehaviour, ISerializable
     protected virtual void Start()
     {
         Move(GridPosition.FromVector3(transform.position));
-        GameManager = FindObjectOfType<GameManager>();
-        GameManager.Register(this);
+        MissionManager = FindObjectOfType<MissionManager>();
+        MissionManager.Register(this);
     }
 
     protected void Move(GridPosition position)
@@ -28,7 +28,7 @@ public abstract class Entity : MonoBehaviour, ISerializable
 
     protected void Kill()
     {
-        GameManager.Remove(this);
+        MissionManager.Remove(this);
         Destroy(gameObject);
     }
 

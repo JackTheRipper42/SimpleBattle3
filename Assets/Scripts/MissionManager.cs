@@ -7,7 +7,7 @@ using Serialization;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class GameManager : MonoBehaviour, ISerializable
+public class MissionManager : MonoBehaviour, ISerializable
 {
     private const string SaveFolder = "Saves";
     private const string SaveFile = "Game1";

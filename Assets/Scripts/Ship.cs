@@ -39,7 +39,7 @@ public class Ship : Entity
         base.Start();
         if (_isLoading)
         {
-            if (GameManager.PlayerSide == Side)
+            if (MissionManager.PlayerSide == Side)
             {
                 if (CanFire)
                 {
@@ -109,7 +109,7 @@ public class Ship : Entity
     {
         CanFire = true;
         CanMove = true;
-        if (GameManager.PlayerSide == Side)
+        if (MissionManager.PlayerSide == Side)
         {
             UI.EnableCanFireMarker();
             UI.EnableCanMoveMarker();
