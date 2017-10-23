@@ -1,9 +1,8 @@
-﻿using System.Collections;
+﻿using Serialization;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using Serialization;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -40,6 +39,11 @@ public class MissionManager : MonoBehaviour, ISerializable
         _blockUI = false;
         _endTurn = false;
         LoadButton.interactable = File.Exists(Path.Combine(SaveFolder, SaveFile));
+
+        if (GameManager.Instance.LoadedSaveGame != null)
+        {
+            GameManager.Instance.LoadedSaveGame.GetValue("Mission", new MissionManagerFactory());
+        }
     }
 
     protected virtual void Update()
@@ -203,30 +207,19 @@ public class MissionManager : MonoBehaviour, ISerializable
 
     public void Save()
     {
-        if (!Directory.Exists(SaveFolder))
-        {
-            Directory.CreateDirectory(SaveFolder);
-        }
-        using (var stream = new FileStream(Path.Combine(SaveFolder, SaveFile), FileMode.Create, FileAccess.Write))
-        using (var writer = new BinaryWriter(stream, Encoding.UTF8, false))
-        {
-            var serializationInfo = new SerializationInfo();
-            Serialize(serializationInfo);
-            serializationInfo.Write(writer);
-        }
-        LoadButton.interactable = true;
+        GameManager.Instance.Save(this);
     }
 
     public void Load()
     {
-        using (var stream = new FileStream(Path.Combine(SaveFolder, SaveFile), FileMode.Open, FileAccess.Read))
-        using (var reader = new BinaryReader(stream, Encoding.UTF8, false))
-        {
-            var serializationInfo = new SerializationInfo(reader);
-            Deserialize(serializationInfo);
-        }
+        GameManager.Instance.Load();
     }
 
+    public void MainMenu()
+    {
+        GameManager.Instance.MainMenu();
+    }
+    
     private static IEnumerable<GridPosition> GetDestinations(
         GridPosition position,
         HashSet<GridPosition> obstacles,
@@ -293,7 +286,7 @@ public class MissionManager : MonoBehaviour, ISerializable
         _blockUI = false;
     }
 
-    public void Serialize(SerializationInfo serializationInfo)
+    void ISerializable.Serialize(SerializationInfo serializationInfo)
     {
         serializationInfo.SetValue("Entities", _entities.Count);
         for (var index = 0; index < _entities.Count; index++)
@@ -303,7 +296,7 @@ public class MissionManager : MonoBehaviour, ISerializable
         }
     }
 
-    public void Deserialize(SerializationInfo serializationInfo)
+    void ISerializable.Deserialize(SerializationInfo serializationInfo)
     {
         foreach (var entity in _entities)
         {

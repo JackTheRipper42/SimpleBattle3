@@ -121,7 +121,7 @@ public class Ship : Entity
         return side != Side;
     }
 
-    public override void Serialize(SerializationInfo serializationInfo)
+    protected override void Serialize(SerializationInfo serializationInfo)
     {
         base.Serialize(serializationInfo);
 
@@ -134,7 +134,7 @@ public class Ship : Entity
         serializationInfo.SetValue(ShipSerializationNames.Weapon, Weapon);
     }
 
-    public override void Deserialize(SerializationInfo serializationInfo)
+    protected override void Deserialize(SerializationInfo serializationInfo)
     {
         _isLoading = true;
 

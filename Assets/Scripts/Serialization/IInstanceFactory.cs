@@ -1,8 +1,10 @@
-﻿namespace Serialization
+﻿using JetBrains.Annotations;
+
+namespace Serialization
 {
     public interface IInstanceFactory<T>
         where T : ISerializable
     {
-        T Create(SerializationInfo serializationInfo);
+        [NotNull]T Create(SerializationInfo serializationInfo);
     }
 }

@@ -10,7 +10,7 @@ public abstract class Entity : MonoBehaviour, ISerializable
     public GridPosition Position { get; private set; }
 
     protected virtual void Awake()
-    {
+    {        
     }
 
     protected virtual void Start()
@@ -32,9 +32,7 @@ public abstract class Entity : MonoBehaviour, ISerializable
         Destroy(gameObject);
     }
 
-    public abstract bool IsObstacle(Side side);
-
-    public virtual void Serialize(SerializationInfo serializationInfo)
+    protected virtual void Serialize(SerializationInfo serializationInfo)
     {
         serializationInfo.SetValue(EntitySerializationNames.Prefab, PrefabName);
         serializationInfo.SetValue(EntitySerializationNames.PositionX, transform.position.x);
@@ -42,12 +40,24 @@ public abstract class Entity : MonoBehaviour, ISerializable
         serializationInfo.SetValue(EntitySerializationNames.PositionZ, transform.position.z);
     }
 
-    public virtual void Deserialize(SerializationInfo serializationInfo)
+    protected virtual void Deserialize(SerializationInfo serializationInfo)
     {
         PrefabName = serializationInfo.GetString(EntitySerializationNames.Prefab);
         transform.position = new Vector3(
             serializationInfo.GetSingle(EntitySerializationNames.PositionX),
             serializationInfo.GetSingle(EntitySerializationNames.PositionY),
             serializationInfo.GetSingle(EntitySerializationNames.PositionZ));
+    }
+
+    public abstract bool IsObstacle(Side side);
+
+    void ISerializable.Serialize(SerializationInfo serializationInfo)
+    {
+        Serialize(serializationInfo);
+    }
+
+    void ISerializable.Deserialize(SerializationInfo serializationInfo)
+    {
+        Deserialize(serializationInfo);
     }
 }

@@ -24,7 +24,7 @@ public class Asteroid : Entity
         return true;
     }
 
-    public override void Serialize(SerializationInfo serializationInfo)
+    protected override void Serialize(SerializationInfo serializationInfo)
     {
         base.Serialize(serializationInfo);
 
@@ -34,7 +34,7 @@ public class Asteroid : Entity
         serializationInfo.SetValue(AsteriodSerializationNames.AngularVelocityZ, angularVelocity.z);
     }
 
-    public override void Deserialize(SerializationInfo serializationInfo)
+    protected override void Deserialize(SerializationInfo serializationInfo)
     {
         _isLoading = true;
 
