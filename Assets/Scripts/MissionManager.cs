@@ -17,6 +17,8 @@ public class MissionManager : MonoBehaviour, ISerializable
     public GameObject DestinationMarkerPrefab;
     public GameObject SelectionMarkerPrefab;
     public Button LoadButton;
+    public GameObject MainCamera;
+    public float ScrollSpeed = 1;
 
     private Astar _astar;
     private List<Entity> _entities;
@@ -48,6 +50,13 @@ public class MissionManager : MonoBehaviour, ISerializable
 
     protected virtual void Update()
     {
+        var inputScroll = new Vector3(
+            Input.GetAxis("Horizontal"),
+            0f,
+            Input.GetAxis("Vertical"));
+
+        MainCamera.transform.position += ScrollSpeed * Time.deltaTime * inputScroll;
+
         if (_endTurn)
         {
             _endTurn = false;
@@ -288,12 +297,15 @@ public class MissionManager : MonoBehaviour, ISerializable
 
     void ISerializable.Serialize(SerializationInfo serializationInfo)
     {
-        serializationInfo.SetValue("Entities", _entities.Count);
+        serializationInfo.SetValue(MissionManagerSerializationNames.Entities, _entities.Count);
         for (var index = 0; index < _entities.Count; index++)
         {
             var entity = _entities[index];
-            serializationInfo.SetValue($"Entity{index}", entity);
+            serializationInfo.SetValue($"{MissionManagerSerializationNames.EntityPrefix}{index}", entity);
         }
+        serializationInfo.SetValue(MissionManagerSerializationNames.CameraPositionX, MainCamera.transform.position.x);
+        serializationInfo.SetValue(MissionManagerSerializationNames.CameraPositionY, MainCamera.transform.position.y);
+        serializationInfo.SetValue(MissionManagerSerializationNames.CameraPositionZ, MainCamera.transform.position.z);
     }
 
     void ISerializable.Deserialize(SerializationInfo serializationInfo)
@@ -310,10 +322,15 @@ public class MissionManager : MonoBehaviour, ISerializable
         _endTurn = false;
 
         var factory = new EntityFactory();
-        var count = serializationInfo.GetInt32("Entities");
+        var count = serializationInfo.GetInt32(MissionManagerSerializationNames.Entities);
         for (var index = 0; index < count; index++)
         {
-            serializationInfo.GetValue($"Entity{index}", factory);
+            serializationInfo.GetValue($"{MissionManagerSerializationNames.EntityPrefix}{index}", factory);
         }
+
+        MainCamera.transform.position = new Vector3(
+            serializationInfo.GetSingle(MissionManagerSerializationNames.CameraPositionX),
+            serializationInfo.GetSingle(MissionManagerSerializationNames.CameraPositionY),
+            serializationInfo.GetSingle(MissionManagerSerializationNames.CameraPositionZ));
     }
 }
