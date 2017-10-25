@@ -117,11 +117,11 @@ namespace Serialization
             return value;
         }
 
-        public T GetValue<T>(string name, IInstanceFactory<T> factory)
+        public T GetValue<T>(string name, Func<SerializationInfo, T> factory)
             where T: ISerializable
         {
             var serializationInfo = (SerializationInfo) _data[name];
-            var value = factory.Create(serializationInfo);
+            var value = factory(serializationInfo);
             value.Deserialize(serializationInfo);
             return value;
         }

@@ -11,6 +11,8 @@ public class GameManager : MonoBehaviour
     private const string SaveFolder = "Saves";
     private const string SaveFile = "Game1";
 
+    private SerializationInfo _loadedSaveGame;
+
     public static GameManager Instance
     {
         get
@@ -27,8 +29,6 @@ public class GameManager : MonoBehaviour
 
     public bool SaveGameAvailable => File.Exists(Path.Combine(SaveFolder, SaveFile));
 
-    public SerializationInfo LoadedSaveGame { get; private set; }
-
     protected virtual void Awake()
     {
         DontDestroyOnLoad(this);
@@ -36,13 +36,14 @@ public class GameManager : MonoBehaviour
 
     public void New()
     {
-        LoadedSaveGame = null;
+        _loadedSaveGame = null;
         SceneManager.LoadScene("game", LoadSceneMode.Single);
         SceneManager.LoadScene("mission1", LoadSceneMode.Additive);
     }
 
-    public void Save(MissionManager missionManager)
+    public void Save()
     {
+        var missionSerializer = FindObjectOfType<MissionSerializer>();
         if (!Directory.Exists(SaveFolder))
         {
             Directory.CreateDirectory(SaveFolder);
@@ -51,11 +52,10 @@ public class GameManager : MonoBehaviour
         using (var writer = new BinaryWriter(stream, Encoding.UTF8, false))
         {
             var serializationInfo = new SerializationInfo();
-            serializationInfo.SetValue("Scene", SceneManager.GetActiveScene().name);
-            serializationInfo.SetValue("Mission", missionManager);
+            serializationInfo.SetValue(GameManagerSerializationNames.Scene, SceneManager.GetActiveScene().name);
+            serializationInfo.SetValue(GameManagerSerializationNames.Mission, missionSerializer);
             serializationInfo.Write(writer);
         }
-        missionManager.LoadButton.interactable = true;
     }
 
     public void Load()
@@ -63,8 +63,8 @@ public class GameManager : MonoBehaviour
         using (var stream = new FileStream(Path.Combine(SaveFolder, SaveFile), FileMode.Open, FileAccess.Read))
         using (var reader = new BinaryReader(stream, Encoding.UTF8, false))
         {
-            LoadedSaveGame = new SerializationInfo(reader);
-            SceneManager.LoadScene(LoadedSaveGame.GetString("Scene"));
+            _loadedSaveGame = new SerializationInfo(reader);
+            SceneManager.LoadScene(_loadedSaveGame.GetString(GameManagerSerializationNames.Scene));
         }
     }
 
@@ -76,5 +76,13 @@ public class GameManager : MonoBehaviour
     public void MainMenu()
     {
         SceneManager.LoadScene("mainMenu");
+    }
+
+    public void DeserializeMission(MissionSerializer missionSerializer)
+    {
+        if (_loadedSaveGame != null)
+        {
+            _loadedSaveGame.GetValue(GameManagerSerializationNames.Mission, serializationInfo => missionSerializer);
+        }
     }
 }

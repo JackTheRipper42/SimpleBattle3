@@ -1,6 +1,6 @@
 ﻿namespace Serialization
 {
-    public class MissionManagerSerializationNames
+    public class MissionSerializationNames
     {
         public const string Entities = "Entities";
         public const string EntityPrefix = "Entity";

@@ -1,12 +1,11 @@
-﻿using Serialization;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class MissionManager : MonoBehaviour, ISerializable
+public class MissionManager : MonoBehaviour
 {
     private const string SaveFolder = "Saves";
     private const string SaveFile = "Game1";
@@ -36,16 +35,10 @@ public class MissionManager : MonoBehaviour, ISerializable
         _entities = new List<Entity>();
         _destinationMarkers = new List<GameObject>();
         _selectionMarker = Instantiate(SelectionMarkerPrefab, transform);
-        _selectionMarker.SetActive(false);
-        _selectedShip = null;
-        _blockUI = false;
-        _endTurn = false;
+
         LoadButton.interactable = File.Exists(Path.Combine(SaveFolder, SaveFile));
 
-        if (GameManager.Instance.LoadedSaveGame != null)
-        {
-            GameManager.Instance.LoadedSaveGame.GetValue("Mission", new MissionManagerFactory());
-        }
+        Initialize();
     }
 
     protected virtual void Update()
@@ -194,6 +187,19 @@ public class MissionManager : MonoBehaviour, ISerializable
         }
     }
 
+    public void Initialize()
+    {
+        foreach (var entity in _entities)
+        {
+            Destroy(entity.gameObject);
+        }
+        _entities.Clear();
+        _selectionMarker.SetActive(false);
+        _selectedShip = null;
+        _blockUI = false;
+        _endTurn = false;
+    }
+
     public void Register(Entity entity)
     {
         _entities.Add(entity);
@@ -216,7 +222,8 @@ public class MissionManager : MonoBehaviour, ISerializable
 
     public void Save()
     {
-        GameManager.Instance.Save(this);
+        GameManager.Instance.Save();
+        LoadButton.interactable = true;
     }
 
     public void Load()
@@ -228,7 +235,12 @@ public class MissionManager : MonoBehaviour, ISerializable
     {
         GameManager.Instance.MainMenu();
     }
-    
+
+    public IList<Entity> GetEntities()
+    {
+        return _entities;
+    }
+  
     private static IEnumerable<GridPosition> GetDestinations(
         GridPosition position,
         HashSet<GridPosition> obstacles,
@@ -293,44 +305,5 @@ public class MissionManager : MonoBehaviour, ISerializable
         }
 
         _blockUI = false;
-    }
-
-    void ISerializable.Serialize(SerializationInfo serializationInfo)
-    {
-        serializationInfo.SetValue(MissionManagerSerializationNames.Entities, _entities.Count);
-        for (var index = 0; index < _entities.Count; index++)
-        {
-            var entity = _entities[index];
-            serializationInfo.SetValue($"{MissionManagerSerializationNames.EntityPrefix}{index}", entity);
-        }
-        serializationInfo.SetValue(MissionManagerSerializationNames.CameraPositionX, MainCamera.transform.position.x);
-        serializationInfo.SetValue(MissionManagerSerializationNames.CameraPositionY, MainCamera.transform.position.y);
-        serializationInfo.SetValue(MissionManagerSerializationNames.CameraPositionZ, MainCamera.transform.position.z);
-    }
-
-    void ISerializable.Deserialize(SerializationInfo serializationInfo)
-    {
-        foreach (var entity in _entities)
-        {
-            Destroy(entity.gameObject);
-        }
-
-        _entities.Clear();
-        _selectionMarker.SetActive(false);
-        _selectedShip = null;
-        _blockUI = false;
-        _endTurn = false;
-
-        var factory = new EntityFactory();
-        var count = serializationInfo.GetInt32(MissionManagerSerializationNames.Entities);
-        for (var index = 0; index < count; index++)
-        {
-            serializationInfo.GetValue($"{MissionManagerSerializationNames.EntityPrefix}{index}", factory);
-        }
-
-        MainCamera.transform.position = new Vector3(
-            serializationInfo.GetSingle(MissionManagerSerializationNames.CameraPositionX),
-            serializationInfo.GetSingle(MissionManagerSerializationNames.CameraPositionY),
-            serializationInfo.GetSingle(MissionManagerSerializationNames.CameraPositionZ));
     }
 }
