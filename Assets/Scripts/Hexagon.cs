@@ -6,7 +6,7 @@
 
 public class Hexagon : MonoBehaviour
 {
-    private const float HalfWidth = 0.1f;
+    private const float HalfWidth = 0.05f;
 
     protected virtual void Awake()
     {

@@ -7,7 +7,7 @@ using UnityEngine;
 public class HexGrid : MonoBehaviour
 {
     private const int Cells = 15;
-    private const float HalfWidth = 0.05f;
+    private const float HalfWidth = 0.02f;
 
     private static Mesh _sharedMesh;
 
