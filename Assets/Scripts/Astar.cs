@@ -4,27 +4,26 @@ using System.Linq;
 
 public class Astar
 {
-
     public IList<GridPosition> Calculate(GridPosition start, GridPosition goal, ICollection<GridPosition> obstacles)
     {
         var startNode = new Node(start);
         var goalNode = new Node(goal);
-        var closedset = new HashSet<GridPosition>(obstacles);
-        var openset = new HashSet<Node> {startNode};
+        var closed = new HashSet<GridPosition>(obstacles);
+        var open = new HashSet<Node> {startNode};
         var cameFrom = new Dictionary<Node, Node>();
 
         startNode.Gscore = 0;
         startNode.Fscore = startNode.Gscore + HeuristicCostEstimate(startNode, goalNode);
 
-        while (openset.Any())
+        while (open.Any())
         {
             Node currentNode = null;
-            var minFscore = float.MaxValue;
-            foreach (var node in openset)
+            var minFScore = float.MaxValue;
+            foreach (var node in open)
             {
-                if (node.Fscore < minFscore)
+                if (node.Fscore < minFScore)
                 {
-                    minFscore = node.Fscore;
+                    minFScore = node.Fscore;
                     currentNode = node;
                 }
             }
@@ -36,16 +35,16 @@ public class Astar
 
             if (currentNode.Position == goal)
             {
-                return ReconstuctPath(cameFrom, goalNode);
+                return ReconstructPath(cameFrom, goalNode);
             }
-            openset.Remove(currentNode);
-            closedset.Add(currentNode.Position);
+            open.Remove(currentNode);
+            closed.Add(currentNode.Position);
 
-            foreach (var neighborNode in GetNeighborNodes(currentNode.Position, closedset))
+            foreach (var neighborNode in GetNeighborNodes(currentNode.Position, closed))
             {
-                var tentativeGscore = currentNode.Gscore + GetCost(currentNode.Position, neighborNode.Position);
+                var tentativeGScore = currentNode.Gscore + GetCost(currentNode.Position, neighborNode.Position);
 
-                if (!openset.Contains(neighborNode) || tentativeGscore < neighborNode.Gscore)
+                if (!open.Contains(neighborNode) || tentativeGScore < neighborNode.Gscore)
                 {
                     if (cameFrom.ContainsKey(neighborNode))
                     {
@@ -56,17 +55,46 @@ public class Astar
                         cameFrom.Add(neighborNode, currentNode);
                     }
 
-                    neighborNode.Gscore = tentativeGscore;
+                    neighborNode.Gscore = tentativeGScore;
                     neighborNode.Fscore = neighborNode.Gscore + HeuristicCostEstimate(neighborNode, goalNode);
 
-                    if (!openset.Contains(neighborNode))
+                    if (!open.Contains(neighborNode))
                     {
-                        openset.Add(neighborNode);
+                        open.Add(neighborNode);
                     }
                 }
             }
         }
         return null;
+    }
+
+    public IList<GridPosition> GetDestinations(
+        GridPosition position,
+        HashSet<GridPosition> obstacles,
+        HashSet<GridPosition> entities,
+        int range)
+    {
+        var destinations = new List<GridPosition>();
+
+        if (range < 0)
+        {
+            return destinations;
+        }
+
+        if (!entities.Contains(position))
+        {
+            destinations.Add(position);
+        }
+
+        foreach (var neighbor in position.Neighbors)
+        {
+            if (!obstacles.Contains(neighbor))
+            {
+                destinations.AddRange(GetDestinations(neighbor, obstacles, entities, range - 1));
+            }
+        }
+
+        return destinations.Distinct().ToList();
     }
 
     private static float HeuristicCostEstimate([NotNull] Node start, [NotNull] Node goal)
@@ -79,24 +107,24 @@ public class Astar
         return GridPosition.Distance(start, goal);
     }
 
-    private static IList<GridPosition> ReconstuctPath([NotNull] IDictionary<Node, Node> cameFrom, [NotNull] Node current)
+    private static IList<GridPosition> ReconstructPath([NotNull] IDictionary<Node, Node> cameFrom, [NotNull] Node current)
     {
-        var totalpath = new List<GridPosition> {current.Position};
+        var path = new List<GridPosition> {current.Position};
         while (cameFrom.ContainsKey(current))
         {
             current = cameFrom[current];
-            totalpath.Insert(0, current.Position);
+            path.Insert(0, current.Position);
         }
-        return totalpath;
+        return path;
     }
 
-    private static IEnumerable<Node> GetNeighborNodes(GridPosition position, [NotNull] ICollection<GridPosition> closedset)
+    private static IEnumerable<Node> GetNeighborNodes(GridPosition position, [NotNull] ICollection<GridPosition> closed)
     {
         var neighbors = new List<Node>(6);
 
         foreach (var neighbor in position.Neighbors)
         {
-            if (!closedset.Contains(neighbor))
+            if (!closed.Contains(neighbor))
             {
                 neighbors.Add(new Node(neighbor));
             }

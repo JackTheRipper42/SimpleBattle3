@@ -12,11 +12,10 @@ public class MissionSerializer : MonoBehaviour, ISerializable
 
     void ISerializable.Serialize(SerializationInfo serializationInfo)
     {
-        var entities = _missionManager.GetEntities();
-        serializationInfo.SetValue(MissionSerializationNames.Entities, entities.Count);
-        for (var index = 0; index < entities.Count; index++)
+        serializationInfo.SetValue(MissionSerializationNames.Entities, _missionManager.Entities.Count);
+        for (var index = 0; index < _missionManager.Entities.Count; index++)
         {
-            var entity = entities[index];
+            var entity = _missionManager.Entities[index];
             serializationInfo.SetValue($"{MissionSerializationNames.EntityPrefix}{index}", entity);
         }
         serializationInfo.SetValue(
@@ -32,7 +31,7 @@ public class MissionSerializer : MonoBehaviour, ISerializable
 
     void ISerializable.Deserialize(SerializationInfo serializationInfo)
     {
-        _missionManager.Reset();
+        _missionManager.ResetState();
 
         var count = serializationInfo.GetInt32(MissionSerializationNames.Entities);
         for (var index = 0; index < count; index++)

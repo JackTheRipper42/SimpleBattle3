@@ -81,7 +81,7 @@ public class GameManager : MonoBehaviour
         var missionManager = FindObjectOfType<MissionManager>();
         if (missionManager != null)
         {
-            missionManager.Reset();
+            missionManager.ResetState();
             Destroy(missionManager.gameObject);
         }
 
