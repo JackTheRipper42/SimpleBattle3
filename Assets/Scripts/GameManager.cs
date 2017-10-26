@@ -11,6 +11,8 @@ public class GameManager : MonoBehaviour
     private const string SaveFolder = "Saves";
     private const string SaveFile = "Game1";
 
+    private int _level;
+
     public static GameManager Instance
     {
         get
@@ -30,12 +32,13 @@ public class GameManager : MonoBehaviour
     protected virtual void Awake()
     {
         DontDestroyOnLoad(this);
+        _level = 1;
     }
 
     public void New()
     {
-        SceneManager.LoadScene("game", LoadSceneMode.Single);
-        SceneManager.LoadScene("mission1", LoadSceneMode.Additive);
+        _level = 1;
+        LoadLevel();
     }
 
     public void Save()
@@ -51,7 +54,8 @@ public class GameManager : MonoBehaviour
         {
             var serializationInfo = new SerializationInfo();
             serializationInfo.SetValue(GameManagerSerializationNames.Scene, SceneManager.GetActiveScene().name);
-            serializationInfo.SetValue(GameManagerSerializationNames.Mission, missionSerializer);
+            serializationInfo.SetValue(GameManagerSerializationNames.MissionData, missionSerializer);
+            serializationInfo.SetValue(GameManagerSerializationNames.Level, _level);
             serializationInfo.Write(writer);
 
             memoryStream.Position = 0;
@@ -65,6 +69,7 @@ public class GameManager : MonoBehaviour
         using (var reader = new BinaryReader(stream, Encoding.UTF8, false))
         {
             var serializationInfo = new SerializationInfo(reader);
+            _level = serializationInfo.GetInt32(GameManagerSerializationNames.Level);
             StartCoroutine(Load(serializationInfo));
         }
     }
@@ -79,6 +84,24 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadScene("mainMenu");
     }
 
+    public void Success()
+    {
+        _level++;
+        LoadLevel();
+    }
+
+    public void GameOver()
+    {
+        _level = 1;
+        MainMenu();
+    }
+
+    private void LoadLevel()
+    {
+        SceneManager.LoadScene("game", LoadSceneMode.Single);
+        SceneManager.LoadScene($"mission{_level}", LoadSceneMode.Additive);
+    }
+
     private static IEnumerator Load(SerializationInfo serializationInfo)
     {
         var missionManager = FindObjectOfType<MissionManager>();
@@ -87,7 +110,7 @@ public class GameManager : MonoBehaviour
             missionManager.ResetState();
             Destroy(missionManager.gameObject);
         }
-
+        
         SceneManager.LoadSceneAsync(serializationInfo.GetString(GameManagerSerializationNames.Scene));
         MissionSerializer missionSerializer;
         do
@@ -96,12 +119,13 @@ public class GameManager : MonoBehaviour
             missionSerializer = FindObjectOfType<MissionSerializer>();
         } while (missionSerializer == null);
 
-        serializationInfo.GetValue(GameManagerSerializationNames.Mission, info => missionSerializer);
+        serializationInfo.GetValue(GameManagerSerializationNames.MissionData, info => missionSerializer);
     }
 
     protected class GameManagerSerializationNames
     {
         public const string Scene = "Scene";
-        public const string Mission = "Mission";
+        public const string MissionData = "MissionData";
+        public const string Level = "Level";
     }
 }

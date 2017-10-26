@@ -121,6 +121,21 @@ public class MissionManager : MonoBehaviour
     public void Remove(Entity entity)
     {
         Entities.Remove(entity);
+
+        if (entity == _selectedShip)
+        {
+            _selectionMarker.SetActive(false);
+            _selectedShip = null;
+        }
+
+        if (Entities.OfType<Ship>().All(ship => ship.Side != PlayerSide))
+        {
+            GameManager.Instance.GameOver();
+        }
+        if (Entities.OfType<Ship>().All(ship => ship.Side == PlayerSide))
+        {
+            GameManager.Instance.Success();
+        }
     }
 
     public void EndTurn()

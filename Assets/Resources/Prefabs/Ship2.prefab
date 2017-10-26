@@ -290,8 +290,8 @@ MonoBehaviour:
   SalvoFlightTime: 0.28
   Weapon:
     Range: 2
-    Damage: 10
-    Accuracy: 0.8
+    Damage: 45
+    Accuracy: 0.7
   Shield:
     MaxHitPoints: 100
     HitPoints: 0

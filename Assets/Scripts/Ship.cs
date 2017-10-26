@@ -169,7 +169,6 @@ public class Ship : Entity
         yield return new WaitForSeconds(SalvoFlightTime);
         if (Random.Range(0f, 1f) > attacker.Weapon.Accuracy)
         {
-            Debug.Log("miss");
             yield break;
         }
         var shieldDamage = Mathf.Min(target.Shield.HitPoints, attacker.Weapon.Damage * target.Shield.Absorption);
