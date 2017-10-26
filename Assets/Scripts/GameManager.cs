@@ -45,13 +45,17 @@ public class GameManager : MonoBehaviour
         {
             Directory.CreateDirectory(SaveFolder);
         }
-        using (var stream = new FileStream(Path.Combine(SaveFolder, SaveFile), FileMode.Create, FileAccess.Write))
-        using (var writer = new BinaryWriter(stream, Encoding.UTF8, false))
+        using (var fileStream = new FileStream(Path.Combine(SaveFolder, SaveFile), FileMode.Create, FileAccess.Write))
+        using (var memoryStream = new MemoryStream())
+        using (var writer = new BinaryWriter(memoryStream, Encoding.UTF8, false))
         {
             var serializationInfo = new SerializationInfo();
             serializationInfo.SetValue(GameManagerSerializationNames.Scene, SceneManager.GetActiveScene().name);
             serializationInfo.SetValue(GameManagerSerializationNames.Mission, missionSerializer);
             serializationInfo.Write(writer);
+
+            memoryStream.Position = 0;
+            memoryStream.CopyTo(fileStream);
         }
     }
 
