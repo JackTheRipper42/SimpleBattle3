@@ -1,5 +1,4 @@
 ﻿using System;
-using Serialization;
 
 [Serializable]
 public class Structure : ISerializable

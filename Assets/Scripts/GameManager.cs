@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using Serialization;
 using System.IO;
 using System.Text;
 using UnityEngine;
@@ -94,5 +93,11 @@ public class GameManager : MonoBehaviour
         } while (missionSerializer == null);
 
         serializationInfo.GetValue(GameManagerSerializationNames.Mission, info => missionSerializer);
+    }
+
+    protected class GameManagerSerializationNames
+    {
+        public const string Scene = "Scene";
+        public const string Mission = "Mission";
     }
 }

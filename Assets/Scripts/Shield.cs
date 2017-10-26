@@ -1,5 +1,4 @@
-﻿using Serialization;
-using System;
+﻿using System;
 using UnityEngine;
 
 [Serializable]

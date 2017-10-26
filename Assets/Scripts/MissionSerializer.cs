@@ -1,5 +1,4 @@
-﻿using Serialization;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class MissionSerializer : MonoBehaviour, ISerializable
 {
@@ -43,5 +42,14 @@ public class MissionSerializer : MonoBehaviour, ISerializable
             serializationInfo.GetSingle(MissionSerializationNames.CameraPositionX),
             serializationInfo.GetSingle(MissionSerializationNames.CameraPositionY),
             serializationInfo.GetSingle(MissionSerializationNames.CameraPositionZ));
+    }
+
+    protected class MissionSerializationNames
+    {
+        public const string Entities = "Entities";
+        public const string EntityPrefix = "Entity";
+        public const string CameraPositionX = "Camera.Position.X";
+        public const string CameraPositionY = "Camera.Position.Y";
+        public const string CameraPositionZ = "Camera.Position.Z";
     }
 }

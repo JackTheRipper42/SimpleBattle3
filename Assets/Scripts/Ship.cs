@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using Serialization;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -255,4 +254,14 @@ public class Ship : Entity
         Destroy(explosion);
     }
 
+    protected class ShipSerializationNames : EntitySerializationNames
+    {
+        public const string MovementRange = "MovementRange";
+        public const string Side = "Side";
+        public const string CanMove = "CanMove";
+        public const string CanFire = "CanFire";
+        public const string Weapon = "Weapon";
+        public const string Shield = "Shield";
+        public const string Structure = "Structure";
+    }
 }

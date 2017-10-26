@@ -1,5 +1,4 @@
-﻿using Serialization;
-using UnityEngine;
+﻿using UnityEngine;
 
 public abstract class Entity : MonoBehaviour, ISerializable
 {
@@ -66,5 +65,13 @@ public abstract class Entity : MonoBehaviour, ISerializable
         var prefab = Resources.Load<GameObject>($"Prefabs/{serializationInfo.GetString(EntitySerializationNames.Prefab)}");
         var gameObject = Instantiate(prefab);
         return gameObject.GetComponent<Entity>();
+    }
+
+    protected class EntitySerializationNames
+    {
+        public const string Prefab = "Prefab";
+        public const string PositionX = "Position.X";
+        public const string PositionY = "Position.Y";
+        public const string PositionZ = "Position.Z";
     }
 }

@@ -1,5 +1,4 @@
-﻿using Serialization;
-using UnityEngine;
+﻿using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
 public class Asteroid : Entity
@@ -29,9 +28,9 @@ public class Asteroid : Entity
         base.Serialize(serializationInfo);
 
         var angularVelocity = GetComponent<Rigidbody>().angularVelocity;
-        serializationInfo.SetValue(AsteriodSerializationNames.AngularVelocityX, angularVelocity.x);
-        serializationInfo.SetValue(AsteriodSerializationNames.AngularVelocityY, angularVelocity.y);
-        serializationInfo.SetValue(AsteriodSerializationNames.AngularVelocityZ, angularVelocity.z);
+        serializationInfo.SetValue(AsteroidSerializationNames.AngularVelocityX, angularVelocity.x);
+        serializationInfo.SetValue(AsteroidSerializationNames.AngularVelocityY, angularVelocity.y);
+        serializationInfo.SetValue(AsteroidSerializationNames.AngularVelocityZ, angularVelocity.z);
     }
 
     protected override void Deserialize(SerializationInfo serializationInfo)
@@ -41,8 +40,15 @@ public class Asteroid : Entity
         base.Deserialize(serializationInfo);
 
         GetComponent<Rigidbody>().angularVelocity = new Vector3(
-            serializationInfo.GetSingle(AsteriodSerializationNames.AngularVelocityX),
-            serializationInfo.GetSingle(AsteriodSerializationNames.AngularVelocityY),
-            serializationInfo.GetSingle(AsteriodSerializationNames.AngularVelocityZ));
+            serializationInfo.GetSingle(AsteroidSerializationNames.AngularVelocityX),
+            serializationInfo.GetSingle(AsteroidSerializationNames.AngularVelocityY),
+            serializationInfo.GetSingle(AsteroidSerializationNames.AngularVelocityZ));
+    }
+
+    protected class AsteroidSerializationNames : EntitySerializationNames
+    {
+        public const string AngularVelocityX = "AngularVelocity.X";
+        public const string AngularVelocityY = "AngularVelocity.Y";
+        public const string AngularVelocityZ = "AngularVelocity.Z";
     }
 }
