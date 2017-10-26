@@ -8,8 +8,6 @@ public class MissionSerializer : MonoBehaviour, ISerializable
     protected virtual void Start()
     {
         _missionManager = FindObjectOfType<MissionManager>();
-
-        GameManager.Instance.DeserializeMission(this);
     }
 
     void ISerializable.Serialize(SerializationInfo serializationInfo)
@@ -34,7 +32,7 @@ public class MissionSerializer : MonoBehaviour, ISerializable
 
     void ISerializable.Deserialize(SerializationInfo serializationInfo)
     {
-        _missionManager.Initialize();
+        _missionManager.Reset();
 
         var count = serializationInfo.GetInt32(MissionSerializationNames.Entities);
         for (var index = 0; index < count; index++)

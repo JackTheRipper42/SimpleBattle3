@@ -1,4 +1,5 @@
-﻿using Serialization;
+﻿using System.Collections;
+using Serialization;
 using System.IO;
 using System.Text;
 using UnityEngine;
@@ -10,8 +11,6 @@ public class GameManager : MonoBehaviour
 
     private const string SaveFolder = "Saves";
     private const string SaveFile = "Game1";
-
-    private SerializationInfo _loadedSaveGame;
 
     public static GameManager Instance
     {
@@ -36,7 +35,6 @@ public class GameManager : MonoBehaviour
 
     public void New()
     {
-        _loadedSaveGame = null;
         SceneManager.LoadScene("game", LoadSceneMode.Single);
         SceneManager.LoadScene("mission1", LoadSceneMode.Additive);
     }
@@ -63,8 +61,8 @@ public class GameManager : MonoBehaviour
         using (var stream = new FileStream(Path.Combine(SaveFolder, SaveFile), FileMode.Open, FileAccess.Read))
         using (var reader = new BinaryReader(stream, Encoding.UTF8, false))
         {
-            _loadedSaveGame = new SerializationInfo(reader);
-            SceneManager.LoadScene(_loadedSaveGame.GetString(GameManagerSerializationNames.Scene));
+            var serializationInfo = new SerializationInfo(reader);
+            StartCoroutine(Load(serializationInfo));
         }
     }
 
@@ -78,11 +76,23 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadScene("mainMenu");
     }
 
-    public void DeserializeMission(MissionSerializer missionSerializer)
+    private static IEnumerator Load(SerializationInfo serializationInfo)
     {
-        if (_loadedSaveGame != null)
+        var missionManager = FindObjectOfType<MissionManager>();
+        if (missionManager != null)
         {
-            _loadedSaveGame.GetValue(GameManagerSerializationNames.Mission, serializationInfo => missionSerializer);
+            missionManager.Reset();
+            Destroy(missionManager.gameObject);
         }
+
+        SceneManager.LoadSceneAsync(serializationInfo.GetString(GameManagerSerializationNames.Scene));
+        MissionSerializer missionSerializer;
+        do
+        {
+            yield return new WaitForEndOfFrame();
+            missionSerializer = FindObjectOfType<MissionSerializer>();
+        } while (missionSerializer == null);
+
+        serializationInfo.GetValue(GameManagerSerializationNames.Mission, info => missionSerializer);
     }
 }

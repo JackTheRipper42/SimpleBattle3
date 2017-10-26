@@ -33,3 +33,7 @@ sysinfo.txt
 # Builds
 *.apk
 *.unitypackage
+
+# Scripts with the default name added to trigger a relead
+NewBehaviourScript*.cs
+NewBehaviourScript*.cs.meta

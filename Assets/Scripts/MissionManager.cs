@@ -38,7 +38,7 @@ public class MissionManager : MonoBehaviour
 
         LoadButton.interactable = File.Exists(Path.Combine(SaveFolder, SaveFile));
 
-        Initialize();
+        Reset();
     }
 
     protected virtual void Update()
@@ -187,7 +187,7 @@ public class MissionManager : MonoBehaviour
         }
     }
 
-    public void Initialize()
+    public void Reset()
     {
         foreach (var entity in _entities)
         {
