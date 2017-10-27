@@ -167,13 +167,24 @@ public class Ship : Entity
     {
         yield return attacker.PlayFireAnimation();
         yield return new WaitForSeconds(SalvoFlightTime);
-        if (Random.Range(0f, 1f) > attacker.Weapon.Accuracy)
+        var hit = false;
+        for (var i = 0; i < attacker.Weapon.SalveRounds; i++)
+        {
+            if (!(Random.Range(0f, 1f) <= attacker.Weapon.Accuracy))
+            {
+                continue;
+            }
+            var shieldDamage = Mathf.Min(
+                target.Shield.HitPoints, 
+                attacker.Weapon.Damage * target.Shield.Absorption);
+            target.Shield.HitPoints -= shieldDamage;
+            target.Structure.HitPoints -= attacker.Weapon.Damage - shieldDamage;
+            hit = true;
+        }
+        if (!hit)
         {
             yield break;
         }
-        var shieldDamage = Mathf.Min(target.Shield.HitPoints, attacker.Weapon.Damage * target.Shield.Absorption);
-        target.Shield.HitPoints -= shieldDamage;
-        target.Structure.HitPoints -= attacker.Weapon.Damage - shieldDamage;
         if (target.Structure.HitPoints <= 0)
         {
             yield return target.PlayShipExplosion();

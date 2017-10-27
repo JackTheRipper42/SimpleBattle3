@@ -4,25 +4,32 @@ using UnityEngine;
 [Serializable]
 public class Weapon : ISerializable
 {
-    private const string RangeName = "Range";
-    private const string DamageName = "Damage";
-    private const string AccuracyName = "Accuracy";
-
-    public int Range;
+    public int Range = 1;
     public float Damage;
     [Range(0f, 1f)] public float Accuracy = 1f;
+    public int SalveRounds = 1;
 
     public void Serialize(SerializationInfo serializationInfo)
     {
-        serializationInfo.SetValue(RangeName, Range);
-        serializationInfo.SetValue(DamageName, Damage);
-        serializationInfo.SetValue(AccuracyName, Accuracy);
+        serializationInfo.SetValue(SerializationNames.Range, Range);
+        serializationInfo.SetValue(SerializationNames.Damage, Damage);
+        serializationInfo.SetValue(SerializationNames.Accuracy, Accuracy);
+        serializationInfo.SetValue(SerializationNames.SalveRounds, SalveRounds);
     }
 
     public void Deserialize(SerializationInfo serializationInfo)
     {
-        Range = serializationInfo.GetInt32(RangeName);
-        Damage = serializationInfo.GetSingle(DamageName);
-        Accuracy = serializationInfo.GetSingle(AccuracyName);
+        Range = serializationInfo.GetInt32(SerializationNames.Range);
+        Damage = serializationInfo.GetSingle(SerializationNames.Damage);
+        Accuracy = serializationInfo.GetSingle(SerializationNames.Accuracy);
+        SalveRounds = serializationInfo.GetInt32(SerializationNames.SalveRounds);
+    }
+
+    protected class SerializationNames
+    {
+        public const string Range = "Range";
+        public const string Damage = "Damage";
+        public const string Accuracy = "Accuracy";
+        public const string SalveRounds = "SalveRounds";
     }
 }

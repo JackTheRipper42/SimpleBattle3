@@ -4,25 +4,28 @@ using UnityEngine;
 [Serializable]
 public class Shield : ISerializable
 {
-    private const string MaxHitPointsName = "MaxHitPoints";
-    private const string HitPointsName = "HitPoints";
-    private const string AbsorptionName = "Absorption";
-
     public float MaxHitPoints;
     public float HitPoints;
     [Range(0f, 1f)] public float Absorption = 1;
 
     public void Serialize(SerializationInfo serializationInfo)
     {
-        serializationInfo.SetValue(MaxHitPointsName, MaxHitPoints);
-        serializationInfo.SetValue(HitPointsName, HitPoints);
-        serializationInfo.SetValue(AbsorptionName, Absorption);
+        serializationInfo.SetValue(SerializationNames.MaxHitPoints, MaxHitPoints);
+        serializationInfo.SetValue(SerializationNames.HitPoints, HitPoints);
+        serializationInfo.SetValue(SerializationNames.Absorption, Absorption);
     }
 
     public void Deserialize(SerializationInfo serializationInfo)
     {
-        MaxHitPoints = serializationInfo.GetSingle(MaxHitPointsName);
-        HitPoints = serializationInfo.GetSingle(HitPointsName);
-        Absorption = serializationInfo.GetSingle(AbsorptionName);
+        MaxHitPoints = serializationInfo.GetSingle(SerializationNames.MaxHitPoints);
+        HitPoints = serializationInfo.GetSingle(SerializationNames.HitPoints);
+        Absorption = serializationInfo.GetSingle(SerializationNames.Absorption);
+    }
+
+    protected class SerializationNames
+    {
+        public const string MaxHitPoints = "MaxHitPoints";
+        public const string HitPoints = "HitPoints";
+        public const string Absorption = "Absorption";
     }
 }
