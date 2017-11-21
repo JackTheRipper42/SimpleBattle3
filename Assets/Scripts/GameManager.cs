@@ -50,13 +50,13 @@ public class GameManager : MonoBehaviour
         }
         using (var fileStream = new FileStream(Path.Combine(SaveFolder, SaveFile), FileMode.Create, FileAccess.Write))
         using (var memoryStream = new MemoryStream())
-        using (var writer = new BinaryWriter(memoryStream, Encoding.UTF8, false))
         {
             var serializationInfo = new SerializationInfo();
             serializationInfo.SetValue(GameManagerSerializationNames.Scene, SceneManager.GetActiveScene().name);
             serializationInfo.SetValue(GameManagerSerializationNames.MissionData, missionSerializer);
             serializationInfo.SetValue(GameManagerSerializationNames.Level, _level);
-            serializationInfo.Write(writer);
+
+            SerializationInfo.Serializer.Write(memoryStream, serializationInfo);
 
             memoryStream.Position = 0;
             memoryStream.CopyTo(fileStream);
@@ -66,9 +66,8 @@ public class GameManager : MonoBehaviour
     public void Load()
     {
         using (var stream = new FileStream(Path.Combine(SaveFolder, SaveFile), FileMode.Open, FileAccess.Read))
-        using (var reader = new BinaryReader(stream, Encoding.UTF8, false))
         {
-            var serializationInfo = new SerializationInfo(reader);
+            var serializationInfo = SerializationInfo.Serializer.Read(stream);
             _level = serializationInfo.GetInt32(GameManagerSerializationNames.Level);
             StartCoroutine(Load(serializationInfo));
         }

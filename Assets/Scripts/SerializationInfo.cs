@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Json;
 
 public class SerializationInfo
 {
@@ -9,52 +11,6 @@ public class SerializationInfo
     public SerializationInfo()
     {
         _data = new Dictionary<string, object>();
-    }
-
-    public SerializationInfo(BinaryReader reader)
-        :this(reader, true)
-    {        
-    }
-
-    private SerializationInfo(BinaryReader reader, bool readType)
-    {
-        _data = new Dictionary<string, object>();
-        if (readType)
-        {
-            var baseType = (Type) reader.ReadByte();
-            if (baseType != Type.SerializationInfo)
-            {
-                throw new InvalidOperationException($"The base type '{baseType}' is invalid.");
-            }
-        }
-        var count = reader.ReadInt32();
-        for (var i = 0; i < count; i++)
-        {
-            var name = reader.ReadString();
-            var type = (Type)reader.ReadByte();
-            object value;
-            switch (type)
-            {
-                case Type.SerializationInfo:
-                    value = new SerializationInfo(reader, false);
-                    break;
-                case Type.String:
-                    value = reader.ReadString();
-                    break;
-                case Type.Float:
-                    value = reader.ReadSingle();
-                    break;
-                case Type.Int32:
-                    value = reader.ReadInt32();
-                    break;
-                case Type.Boolean:
-                    value = reader.ReadBoolean();
-                    break;
-                default:
-                    throw new NotSupportedException($"The type '{type}' is not supported.");
-            }
-            _data.Add(name, value);
-        }
     }
 
     public void SetValue(string name, float value)
@@ -78,7 +34,7 @@ public class SerializationInfo
     }
 
     public void SetValue<T>(string name, T value)
-        where T: ISerializable
+        where T : ISerializable
     {
         var serializationInfo = new SerializationInfo();
         value.Serialize(serializationInfo);
@@ -87,7 +43,13 @@ public class SerializationInfo
 
     public float GetSingle(string name)
     {
-        return (float) _data[name];
+        var value = _data[name];
+        if (value is float)
+        {
+            return (float) _data[name];
+        }
+
+        return Convert.ToSingle(value);
     }
 
     public int GetInt32(string name)
@@ -115,7 +77,7 @@ public class SerializationInfo
     }
 
     public T GetValue<T>(string name, Func<SerializationInfo, T> factory)
-        where T: ISerializable
+        where T : ISerializable
     {
         var serializationInfo = (SerializationInfo) _data[name];
         var value = factory(serializationInfo);
@@ -123,51 +85,86 @@ public class SerializationInfo
         return value;
     }
 
-    public void Write(BinaryWriter writer)
+    public static class Serializer
     {
-        writer.Write((byte) Type.SerializationInfo);
-        writer.Write(_data.Count);
-        foreach (var entry in _data)
-        {
-            writer.Write(entry.Key);
-            var serializationInfo = entry.Value as SerializationInfo;
-            if (serializationInfo != null)
-            {
-                serializationInfo.Write(writer);
-            }
-            else if (entry.Value is string)
-            {
-                writer.Write((byte)Type.String);
-                writer.Write((string) entry.Value);
-            }
-            else if (entry.Value is int)
-            {
-                writer.Write((byte)Type.Int32);
-                writer.Write((int) entry.Value);
-            }
-            else if (entry.Value is float)
-            {
-                writer.Write((byte)Type.Float);
-                writer.Write((float) entry.Value);
-            }
-            else if (entry.Value is bool)
-            {
-                writer.Write((byte) Type.Boolean);
-                writer.Write((bool) entry.Value);
-            }
-            else
-            {
-                throw new NotSupportedException($"The type '{entry.Value}' is not supported.");
-            }
-        }
-    }
+        private static readonly DataContractJsonSerializer JsonSerializer
+            = new DataContractJsonSerializer(
+                typeof(Entry[]),
+                new DataContractJsonSerializerSettings
+                {
+                    SerializeReadOnlyTypes = true,
+                    IgnoreExtensionDataObject = true,
+                    EmitTypeInformation = EmitTypeInformation.Never
+                });
 
-    private enum Type
-    {
-        SerializationInfo,
-        String,
-        Float,
-        Int32,
-        Boolean
+        public static void Write(Stream stream, SerializationInfo serializationInfo)
+        {
+            var entries = CreateEntries(serializationInfo);
+            JsonSerializer.WriteObject(stream, entries);
+        }
+
+        public static SerializationInfo Read(Stream stream)
+        {
+            var entries = (Entry[])JsonSerializer.ReadObject(stream);
+            return Create(entries);
+        }
+
+        private static SerializationInfo Create(Entry[] entries)
+        {
+            var result = new SerializationInfo();
+            foreach (var entry in entries)
+            {
+                if (entry.NestedData != null)
+                {
+                    var innerSerializationInfo = Create(entry.NestedData);
+                    result._data.Add(entry.Name, innerSerializationInfo);
+                }
+                else
+                {
+                    result._data.Add(entry.Name, entry.Data);
+                }
+            }
+            return result;
+        }
+
+        private static Entry CreateEntry(string name, object data)
+        {
+            var innerSerializationInfo = data as SerializationInfo;
+            if (innerSerializationInfo != null)
+            {
+                var entries = CreateEntries(innerSerializationInfo);
+                return new Entry
+                {
+                    Name = name,
+                    NestedData = entries
+                };
+            }
+
+            return new Entry
+            {
+                Name = name,
+                Data = data
+            };
+        }
+
+        private static Entry[] CreateEntries(SerializationInfo serializationInfo)
+        {
+            var entries = new Entry[serializationInfo._data.Count];
+            var index = 0;
+            foreach (var keyValuePair in serializationInfo._data)
+            {
+                entries[index++] = CreateEntry(keyValuePair.Key, keyValuePair.Value);
+            }
+            return entries;
+        }
+
+        [DataContract]
+        [KnownType(typeof(Entry[]))]
+        private class Entry
+        {
+            [DataMember(Name = "N", Order = 1, IsRequired = true)] public string Name;
+            [DataMember(Name = "D", Order = 2, IsRequired = false, EmitDefaultValue = false)] public object Data;
+            [DataMember(Name = "ND", Order = 3, IsRequired = false, EmitDefaultValue = false)] public Entry[] NestedData;
+        }
     }
 }
