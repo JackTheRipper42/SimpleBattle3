@@ -44,27 +44,25 @@ public class SerializationInfo
     public float GetSingle(string name)
     {
         var value = _data[name];
-        if (value is float)
-        {
-            return (float) _data[name];
-        }
-
         return Convert.ToSingle(value);
     }
 
     public int GetInt32(string name)
     {
-        return (int) _data[name];
+        var value = _data[name];
+        return Convert.ToInt32(value);
     }
 
     public string GetString(string name)
     {
-        return (string) _data[name];
+        var value = _data[name];
+        return Convert.ToString(value);
     }
 
     public bool GetBoolean(string name)
     {
-        return (bool) _data[name];
+        var value = _data[name];
+        return Convert.ToBoolean(value);
     }
 
     public T GetValue<T>(string name)
@@ -162,9 +160,9 @@ public class SerializationInfo
         [KnownType(typeof(Entry[]))]
         private class Entry
         {
-            [DataMember(Name = "N", Order = 1, IsRequired = true)] public string Name;
-            [DataMember(Name = "D", Order = 2, IsRequired = false, EmitDefaultValue = false)] public object Data;
-            [DataMember(Name = "ND", Order = 3, IsRequired = false, EmitDefaultValue = false)] public Entry[] NestedData;
+            [DataMember(Name = "Name", Order = 1, IsRequired = true)] public string Name;
+            [DataMember(Name = "Data", Order = 2, IsRequired = false, EmitDefaultValue = false)] public object Data;
+            [DataMember(Name = "NestedData", Order = 3, IsRequired = false, EmitDefaultValue = false)] public Entry[] NestedData;
         }
     }
 }
