@@ -4,8 +4,10 @@ using UnityEngine.UI;
 public class ShipUI : MonoBehaviour
 {
     public GameObject TargetMarker;
+    public GameObject BoardMarker;
     public GameObject CanMoveMarker;
     public GameObject CanFireMarker;
+    public GameObject CanBoardMarker;
     public GameObject Health;
     public GameObject Shield;
 
@@ -16,41 +18,38 @@ public class ShipUI : MonoBehaviour
     {
         _healthSlider = Health.GetComponentInChildren<Slider>();
         _shieldSlider = Shield.GetComponentInChildren<Slider>();
-        DisableTargetMarker();
-        DisableCanFireMarker();
-        DisableCanMoveMarker();
+        EnableTargetMarker(false);
+        EnableBoardMarker(false);
+        EnableCanFireMarker(false);
+        EnableCanMoveMarker(false);
+        EnableCanBoardMarker(false);
         DisableHealth();
         DisableShield();
     }
 
-    public void EnableTargetMarker()
+    public void EnableTargetMarker(bool active)
     {
-        TargetMarker.SetActive(true);
+        TargetMarker.SetActive(active);
     }
 
-    public void DisableTargetMarker()
+    public void EnableBoardMarker(bool active)
     {
-        TargetMarker.SetActive(false);
+        BoardMarker.SetActive(active);
     }
 
-    public void EnableCanMoveMarker()
+    public void EnableCanMoveMarker(bool active)
     {
-        CanMoveMarker.SetActive(true);
+        CanMoveMarker.SetActive(active);
     }
 
-    public void DisableCanMoveMarker()
+    public void EnableCanFireMarker(bool active)
     {
-        CanMoveMarker.SetActive(false);
+        CanFireMarker.SetActive(active);
     }
 
-    public void EnableCanFireMarker()
+    public void EnableCanBoardMarker(bool active)
     {
-        CanFireMarker.SetActive(true);
-    }
-
-    public void DisableCanFireMarker()
-    {
-        CanFireMarker.SetActive(false);
+        CanBoardMarker.SetActive(active);
     }
 
     public void UpdateStructure(Structure structure)

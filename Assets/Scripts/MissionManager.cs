@@ -46,22 +46,16 @@ public class MissionManager : MonoBehaviour
         {
             if (_selectedShip == null ||
                 ship.Side == PlayerSide ||
-                !_selectedShip.CanFire ||
                 BlockUI)
             {
-                ship.UI.DisableTargetMarker();
+                ship.UI.EnableTargetMarker(false);
+                ship.UI.EnableBoardMarker(false);
             }
             else
             {
                 var range = GridPosition.Distance(_selectedShip.Position, ship.Position);
-                if (range <= _selectedShip.Weapon.Range)
-                {
-                    ship.UI.EnableTargetMarker();
-                }
-                else
-                {
-                    ship.UI.DisableTargetMarker();
-                }
+                ship.UI.EnableTargetMarker(_selectedShip.CanFire && range <= _selectedShip.Weapon.Range);
+                ship.UI.EnableBoardMarker(_selectedShip.CanBoard && range == 1);
             }
         }
 
@@ -235,8 +229,9 @@ public class MissionManager : MonoBehaviour
 
         foreach (var ship in Entities.OfType<Ship>())
         {
-            ship.UI.DisableCanFireMarker();
-            ship.UI.DisableCanMoveMarker();
+            ship.UI.EnableCanFireMarker(false);
+            ship.UI.EnableCanMoveMarker(false);
+            ship.UI.EnableCanBoardMarker(false);
         }
 
         yield return _ai.CalculateTurn(Entities, _astar, Side.Redfore, Speed);

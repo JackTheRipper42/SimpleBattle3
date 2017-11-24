@@ -440,6 +440,16 @@ Prefab:
       propertyPath: _side
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 114947024107108788, guid: 02b3f506a81eb6b42b9ebe29cf9cf87f,
+        type: 2}
+      propertyPath: IsBoardingShip
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114947024107108788, guid: 02b3f506a81eb6b42b9ebe29cf9cf87f,
+        type: 2}
+      propertyPath: CanBeBoarded
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 02b3f506a81eb6b42b9ebe29cf9cf87f, type: 2}
   m_IsPrefabParent: 0

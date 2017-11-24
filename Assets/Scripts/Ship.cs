@@ -8,6 +8,8 @@ public class Ship : Entity
     public int MovementRange = 4;
     public Side Side;
     public float SalvoFlightTime = 0.35f;
+    public bool IsBoardingShip;
+    public bool CanBeBoarded = true;
     public Weapon Weapon;
     public Shield Shield;
     public Structure Structure;
@@ -26,6 +28,8 @@ public class Ship : Entity
 
     public bool CanFire { get; private set; }
 
+    public bool CanBoard { get; private set; }
+
     protected override void Awake()
     {
         base.Awake();
@@ -40,20 +44,15 @@ public class Ship : Entity
         {
             if (MissionManager.PlayerSide == Side)
             {
-                if (CanFire)
-                {
-                    UI.EnableCanFireMarker();
-                }
-
-                if (CanMove)
-                {
-                    UI.EnableCanMoveMarker();
-                }
+                UI.EnableCanFireMarker(CanFire);
+                UI.EnableCanMoveMarker(CanMove);
+                UI.EnableCanBoardMarker(CanBoard);
             }
             else
             {
-                UI.DisableCanFireMarker();
-                UI.DisableCanMoveMarker();
+                UI.EnableCanFireMarker(false);
+                UI.EnableCanMoveMarker(false);
+                UI.EnableCanBoardMarker(false);
 
             }
             UI.UpdateStructure(Structure);
@@ -72,7 +71,7 @@ public class Ship : Entity
     public IEnumerator Attack(Ship target)
     {
         CanFire = false;
-        UI.DisableCanFireMarker();
+        UI.EnableCanFireMarker(false);
 
         if (Random.Range(0, 10) < 7)
         {
@@ -87,7 +86,7 @@ public class Ship : Entity
     public IEnumerator Move(IList<GridPosition> path, float speed)
     {
         CanMove = false;
-        UI.DisableCanMoveMarker();
+        UI.EnableCanMoveMarker(false);
         ThrusterAudio.Play();
         for (var index = 1; index < path.Count; index++)
         {
@@ -106,12 +105,14 @@ public class Ship : Entity
 
     public void StartTurn()
     {
-        CanFire = true;
+        CanFire = !IsBoardingShip;
+        CanBoard = IsBoardingShip;
         CanMove = true;
         if (MissionManager.PlayerSide == Side)
         {
-            UI.EnableCanFireMarker();
-            UI.EnableCanMoveMarker();
+            UI.EnableCanFireMarker(CanFire);
+            UI.EnableCanMoveMarker(CanMove);
+            UI.EnableCanBoardMarker(CanBoard);
         }
     }
 
@@ -128,6 +129,9 @@ public class Ship : Entity
         serializationInfo.SetValue(ShipSerializationNames.Side, (int) Side);
         serializationInfo.SetValue(ShipSerializationNames.CanMove, CanMove);
         serializationInfo.SetValue(ShipSerializationNames.CanFire, CanFire);
+        serializationInfo.SetValue(ShipSerializationNames.CanBoard, CanBoard);
+        serializationInfo.SetValue(ShipSerializationNames.CanBeBoarded, CanBeBoarded);
+        serializationInfo.SetValue(ShipSerializationNames.IsBoardingShip, IsBoardingShip);
         serializationInfo.SetValue(ShipSerializationNames.Structure, Structure);
         serializationInfo.SetValue(ShipSerializationNames.Shield, Shield);
         serializationInfo.SetValue(ShipSerializationNames.Weapon, Weapon);
@@ -143,6 +147,9 @@ public class Ship : Entity
         Side = (Side)serializationInfo.GetInt32(ShipSerializationNames.Side);
         CanMove = serializationInfo.GetBoolean(ShipSerializationNames.CanMove);
         CanFire = serializationInfo.GetBoolean(ShipSerializationNames.CanFire);
+        CanBoard = serializationInfo.GetBoolean(ShipSerializationNames.CanBoard);
+        CanBeBoarded = serializationInfo.GetBoolean(ShipSerializationNames.CanBeBoarded);
+        IsBoardingShip = serializationInfo.GetBoolean(ShipSerializationNames.IsBoardingShip);
         Structure = serializationInfo.GetValue<Structure>(ShipSerializationNames.Structure);
         Shield = serializationInfo.GetValue<Shield>(ShipSerializationNames.Shield);
         Weapon = serializationInfo.GetValue<Weapon>(ShipSerializationNames.Weapon);
@@ -270,6 +277,9 @@ public class Ship : Entity
         public const string Side = "Side";
         public const string CanMove = "CanMove";
         public const string CanFire = "CanFire";
+        public const string CanBoard = "CanBoard";
+        public const string IsBoardingShip = "IsBoardingShip";
+        public const string CanBeBoarded = "CanBeBoarded";
         public const string Weapon = "Weapon";
         public const string Shield = "Shield";
         public const string Structure = "Structure";
