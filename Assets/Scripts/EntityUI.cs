@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
-public class ShipUI : MonoBehaviour
+public class EntityUI : MonoBehaviour
 {
     public GameObject TargetMarker;
     public GameObject BoardMarker;

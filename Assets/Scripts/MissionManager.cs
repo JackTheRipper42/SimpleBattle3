@@ -6,13 +6,14 @@ using UnityEngine;
 public class MissionManager : MonoBehaviour
 {
     public float Speed = 30;
+    public float SalvoFlightTime = 0.35f;
     public Side PlayerSide;
     public GameObject DestinationMarkerPrefab;
     public GameObject SelectionMarkerPrefab;
     public GameObject MainCamera;
 
     private Astar _astar;
-    private Ship _selectedShip;
+    private LivingEntity _selectedEntity;
     private List<GameObject> _destinationMarkers;
     private bool _endTurn;
     private IdiotAI _ai;
@@ -42,30 +43,30 @@ public class MissionManager : MonoBehaviour
             StartCoroutine(FinishTurn());
         }
 
-        foreach (var ship in Entities.OfType<Ship>())
+        foreach (var livingEntity in Entities.OfType<LivingEntity>())
         {
-            if (_selectedShip == null ||
-                ship.Side == PlayerSide ||
+            if (_selectedEntity == null ||
+                livingEntity.Side == PlayerSide ||
                 BlockUI)
             {
-                ship.UI.EnableTargetMarker(false);
-                ship.UI.EnableBoardMarker(false);
+                livingEntity.UI.EnableTargetMarker(false);
+                livingEntity.UI.EnableBoardMarker(false);
             }
             else
             {
-                var range = GridPosition.Distance(_selectedShip.Position, ship.Position);
-                ship.UI.EnableTargetMarker(_selectedShip.CanFire && range <= _selectedShip.Weapon.Range);
-                ship.UI.EnableBoardMarker(_selectedShip.CanBoard && range == 1);
+                var range = GridPosition.Distance(_selectedEntity.Position, livingEntity.Position);
+                livingEntity.UI.EnableTargetMarker(_selectedEntity.CanAttack && range <= _selectedEntity.Weapon.Range);
+                livingEntity.UI.EnableBoardMarker(_selectedEntity.CanBoard && range == 1);
             }
         }
 
-        if (_selectedShip != null && _selectedShip.CanMove && !BlockUI)
+        if (_selectedEntity != null && _selectedEntity.CanMove && !BlockUI)
         {
             var obstacles = new HashSet<GridPosition>(Entities
                 .Where(entity => entity.IsObstacle(PlayerSide))
                 .Select(entity => entity.Position));
             var entities = new HashSet<GridPosition>(Entities.Select(entity => entity.Position));
-            var destinations = _astar.GetDestinations(_selectedShip.Position, obstacles, entities, _selectedShip.MovementRange);
+            var destinations = _astar.GetDestinations(_selectedEntity.Position, obstacles, entities, _selectedEntity.MovementRange);
 
             var markers = new Queue<GameObject>(_destinationMarkers);
             _destinationMarkers.Clear();
@@ -102,7 +103,7 @@ public class MissionManager : MonoBehaviour
         }
         Entities.Clear();
         _selectionMarker.SetActive(false);
-        _selectedShip = null;
+        _selectedEntity = null;
         BlockUI = false;
         _endTurn = false;
     }
@@ -116,17 +117,17 @@ public class MissionManager : MonoBehaviour
     {
         Entities.Remove(entity);
 
-        if (entity == _selectedShip)
+        if (entity == _selectedEntity)
         {
             _selectionMarker.SetActive(false);
-            _selectedShip = null;
+            _selectedEntity = null;
         }
 
-        if (Entities.OfType<Ship>().All(ship => ship.Side != PlayerSide))
+        if (Entities.OfType<LivingEntity>().All(livingEntity => livingEntity.Side != PlayerSide))
         {
             GameManager.Instance.GameOver();
         }
-        if (Entities.OfType<Ship>().All(ship => ship.Side == PlayerSide))
+        if (Entities.OfType<LivingEntity>().All(livingEntity => livingEntity.Side == PlayerSide))
         {
             GameManager.Instance.Success();
         }
@@ -145,26 +146,26 @@ public class MissionManager : MonoBehaviour
     public void Select(GridPosition gridPosition)
     {
         var clickedEntity = Entities
-            .OfType<Ship>()
+            .OfType<LivingEntity>()
             .FirstOrDefault(entity => entity.Position == gridPosition && entity.Side == PlayerSide);
 
         if (clickedEntity == null)
         {
             _selectionMarker.SetActive(false);
-            _selectedShip = null;
+            _selectedEntity = null;
         }
         else
         {
             _selectionMarker.SetActive(true);
             var newPosition = GridPosition.ToVector3(gridPosition);
             _selectionMarker.transform.position = newPosition;
-            _selectedShip = clickedEntity;
+            _selectedEntity = clickedEntity;
         }
     }
 
     public void Interact(GridPosition gridPosition)
     {
-        if (_selectedShip == null)
+        if (_selectedEntity == null)
         {
             return;
         }
@@ -173,72 +174,72 @@ public class MissionManager : MonoBehaviour
 
         if (clickedEntity == null)
         {
-            if (_selectedShip.CanMove)
+            if (_selectedEntity.CanMove)
             {
                 var obstacles = Entities
                     .Where(entity => entity.IsObstacle(PlayerSide))
                     .Select(entity => entity.Position)
                     .ToList();
-                var path = _astar.Calculate(_selectedShip.Position, gridPosition, obstacles);
+                var path = _astar.Calculate(_selectedEntity.Position, gridPosition, obstacles);
 
-                if (path != null && path.Count <= _selectedShip.MovementRange + 1)
+                if (path != null && path.Count <= _selectedEntity.MovementRange + 1)
                 {
                     BlockUI = true;
-                    StartCoroutine(Move(_selectedShip, path));
+                    StartCoroutine(Move(_selectedEntity, path));
                 }
             }
         }
         else
         {
-            if (_selectedShip.CanFire)
+            if (_selectedEntity.CanAttack)
             {
-                var target = clickedEntity as Ship;
+                var target = clickedEntity as LivingEntity;
                 if (target != null && target.Side != PlayerSide)
                 {
-                    var range = GridPosition.Distance(_selectedShip.Position, target.Position);
-                    if (range <= _selectedShip.Weapon.Range)
+                    var range = GridPosition.Distance(_selectedEntity.Position, target.Position);
+                    if (range <= _selectedEntity.Weapon.Range)
                     {
                         BlockUI = true;
-                        StartCoroutine(Attack(_selectedShip, target));
+                        StartCoroutine(Attack(_selectedEntity, target));
                     }
                 }
             }
         }
     }
 
-    private IEnumerator Move(Ship ship, IList<GridPosition> path)
+    private IEnumerator Move(LivingEntity livingEntity, IList<GridPosition> path)
     {
         _selectionMarker.SetActive(false);
-        yield return ship.Move(path, Speed);
+        yield return livingEntity.Move(path, Speed);
         _selectionMarker.SetActive(true);
-        _selectionMarker.transform.position = GridPosition.ToVector3(ship.Position);
+        _selectionMarker.transform.position = GridPosition.ToVector3(livingEntity.Position);
         BlockUI = false;
     }
 
-    private IEnumerator Attack(Ship ship, Ship target)
+    private IEnumerator Attack(LivingEntity livingEntity, LivingEntity target)
     {
-        yield return ship.Attack(target);
+        yield return livingEntity.Attack(target, SalvoFlightTime);
         BlockUI = false;
     }
 
     private IEnumerator FinishTurn()
     {
         BlockUI = true;
-        _selectedShip = null;
+        _selectedEntity = null;
         _selectionMarker.SetActive(false);
 
-        foreach (var ship in Entities.OfType<Ship>())
+        foreach (var livingEntity in Entities.OfType<LivingEntity>())
         {
-            ship.UI.EnableCanFireMarker(false);
-            ship.UI.EnableCanMoveMarker(false);
-            ship.UI.EnableCanBoardMarker(false);
+            livingEntity.UI.EnableCanFireMarker(false);
+            livingEntity.UI.EnableCanMoveMarker(false);
+            livingEntity.UI.EnableCanBoardMarker(false);
         }
 
-        yield return _ai.CalculateTurn(Entities, _astar, Side.Redfore, Speed);
+        yield return _ai.CalculateTurn(Entities, _astar, Side.Redfore, Speed, SalvoFlightTime);
 
-        foreach (var ship in Entities.OfType<Ship>())
+        foreach (var livingEntity in Entities.OfType<LivingEntity>())
         {
-            ship.StartTurn();
+            livingEntity.StartTurn();
         }
 
         BlockUI = false;

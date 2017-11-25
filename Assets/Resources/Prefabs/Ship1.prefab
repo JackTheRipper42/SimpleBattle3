@@ -19,9 +19,9 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4987479865169794}
-  - component: {fileID: 114947024107108788}
   - component: {fileID: 82488001120787512}
   - component: {fileID: 82155797117476886}
+  - component: {fileID: 114086850923797592}
   m_Layer: 0
   m_Name: Ship1
   m_TagString: Untagged
@@ -54,7 +54,7 @@ Transform:
   m_GameObject: {fileID: 1163255477843652}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0.024}
-  m_LocalScale: {x: 0.9, y: 0.9, z: 0.9}
+  m_LocalScale: {x: 0.8, y: 0.8, z: 0.8}
   m_Children: []
   m_Father: {fileID: 4987479865169794}
   m_RootOrder: 0
@@ -273,7 +273,7 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 0
---- !u!114 &114947024107108788
+--- !u!114 &114086850923797592
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
@@ -281,33 +281,33 @@ MonoBehaviour:
   m_GameObject: {fileID: 1026151198553356}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ff506a723fac7e943af2afdc3bf13edb, type: 3}
+  m_Script: {fileID: 11500000, guid: a4758300238d1a448bfcf9f497da5b71, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   PrefabName: Ship1
-  MovementRange: 4
   Side: 0
-  SalvoFlightTime: 0.28
-  Weapon:
-    Range: 1
-    Damage: 30
-    Accuracy: 0.85
+  MovementRange: 2
   Shield:
-    MaxHitPoints: 100
+    MaxHitPoints: 500
     HitPoints: 0
-    Absorption: 1
+    Absorption: 0.9
   Structure:
     MaxHitPoints: 100
     HitPoints: 0
+  Model: {fileID: 1163255477843652}
   FireAudio: {fileID: 82488001120787512}
   ThrusterAudio: {fileID: 82155797117476886}
-  UIPrefab: {fileID: 1276408358586872, guid: b90fc8a4aca83864ea30d840e96a778e, type: 2}
   ExplosionPrefabs:
   - {fileID: 1110476055710878, guid: bcf23823da3a50244aae4b900c1e9710, type: 2}
-  - {fileID: 1999909288363308, guid: 79c7d013c7292a6459df81761e0a8b20, type: 2}
   - {fileID: 1921831799163812, guid: 8cc9c2ee9f387254bb6a8d3483ceb571, type: 2}
+  - {fileID: 0}
   HitPrefabs:
   - {fileID: 1567461736115704, guid: a69e5b77d6f6fa6499ba2e402c7068a8, type: 2}
   - {fileID: 1134474815901348, guid: 770d8f5ef31c1814b81b336b9cc41048, type: 2}
   - {fileID: 1845165753173170, guid: b98386483fe2b834687e74b1b620a5fd, type: 2}
-  ShipModel: {fileID: 1163255477843652}
+  UIPrefab: {fileID: 1276408358586872, guid: b90fc8a4aca83864ea30d840e96a778e, type: 2}
+  MainWeapon:
+    Range: 1
+    Damage: 80
+    Accuracy: 0.6
+    SalveRounds: 1

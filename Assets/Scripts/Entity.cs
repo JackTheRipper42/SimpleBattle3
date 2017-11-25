@@ -8,6 +8,8 @@ public abstract class Entity : MonoBehaviour, ISerializable
 
     public GridPosition Position { get; private set; }
 
+    protected bool IsLoading { get; private set; }
+
     protected virtual void Awake()
     {        
     }
@@ -57,6 +59,7 @@ public abstract class Entity : MonoBehaviour, ISerializable
 
     void ISerializable.Deserialize(SerializationInfo serializationInfo)
     {
+        IsLoading = true;
         Deserialize(serializationInfo);
     }
 

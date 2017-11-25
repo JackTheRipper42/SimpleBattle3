@@ -4,40 +4,45 @@ using System.Linq;
 
 public class IdiotAI
 {
-    public IEnumerator CalculateTurn(List<Entity> entities, Astar astar, Side side, float speed)
+    public IEnumerator CalculateTurn(List<Entity> entities, Astar astar, Side side, float movementSpeed, float salvoFlightTime)
     {
-        var ownShips = entities.OfType<Ship>().Where(ship => ship.Side == side).ToList();
-        var enemyShips = entities.OfType<Ship>().Where(ship => ship.Side != side).ToList();
+        var ownEntities = entities.OfType<LivingEntity>().Where(entity => entity.Side == side).ToList();
+        var enemyShips = entities.OfType<LivingEntity>().Where(entity => entity.Side != side).ToList();
 
-        foreach (var ship in ownShips)
+        foreach (var own in ownEntities)
         {
-            var blackList = new List<Ship>();
+            if (!own.CanAttack)
+            {
+                continue;
+            }
+
+            var blackList = new List<LivingEntity>();
             bool selectNewEnemy;
             do
             {
                 selectNewEnemy = false;
-                var enemy = GetNearestEnemy(ship, enemyShips.Except(blackList));
+                var enemy = GetNearestEnemy(own, enemyShips.Except(blackList));
 
-                if (GridPosition.Distance(ship.Position, enemy.Position) <= ship.Weapon.Range)
+                if (GridPosition.Distance(own.Position, enemy.Position) <= own.Weapon.Range)
                 {
-                    yield return ship.Attack(enemy);
+                    yield return own.Attack(enemy, salvoFlightTime);
                 }
                 else
                 {
                     var obstacles = entities
-                        .Except(ownShips)
+                        .Except(ownEntities)
                         .Where(entity => entity != enemy)
                         .Select(entity => entity.Position)
                         .ToList();
 
-                    var destinations = GetDestinations(enemy.Position, ship.Weapon.Range)
+                    var destinations = GetDestinations(enemy.Position, own.Weapon.Range)
                         .Except(entities.Select(entity => entity.Position))
                         .Distinct();
 
                     IList<GridPosition> shortestPath = null;
                     foreach (var destination in destinations)
                     {
-                        var path = astar.Calculate(ship.Position, destination, obstacles);
+                        var path = astar.Calculate(own.Position, destination, obstacles);
                         if (shortestPath == null || path.Count < shortestPath.Count)
                         {
                             shortestPath = path;
@@ -46,14 +51,14 @@ public class IdiotAI
 
                     if (shortestPath != null)
                     {
-                        var path = shortestPath.Count > ship.MovementRange + 2
-                            ? shortestPath.Take(ship.MovementRange + 1).ToList()
+                        var path = shortestPath.Count > own.MovementRange + 2
+                            ? shortestPath.Take(own.MovementRange + 1).ToList()
                             : shortestPath;
-                        yield return ship.Move(path, speed);
+                        yield return own.Move(path, movementSpeed);
 
-                        if (GridPosition.Distance(ship.Position, enemy.Position) <= ship.Weapon.Range)
+                        if (GridPosition.Distance(own.Position, enemy.Position) <= own.Weapon.Range)
                         {
-                            yield return ship.Attack(enemy);
+                            yield return own.Attack(enemy, salvoFlightTime);
                         }
 
                     }
@@ -67,10 +72,10 @@ public class IdiotAI
         }
     }
 
-    private static Ship GetNearestEnemy(Entity self, IEnumerable<Ship> enemies)
+    private static LivingEntity GetNearestEnemy(Entity self, IEnumerable<LivingEntity> enemies)
     {
         int minDistance = int.MaxValue;
-        Ship closest = null;
+        LivingEntity closest = null;
 
         foreach (var enemy in enemies)
         {
